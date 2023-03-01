@@ -1,6 +1,6 @@
 package me.honkling.commando.lib
 
-import me.honkling.prisonbutbans.commands.CommandManager
+import me.honkling.commando.CommandManager
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabCompleter
