@@ -25,6 +25,7 @@ class CommandManager(private val instance: JavaPlugin) {
 	init {
 		types[String::class.java] = StringType
 		types[Int::class.java] = IntegerType
+		types[Integer::class.java] = IntegerType
 		types[Double::class.java] = DoubleType
 		types[Boolean::class.java] = BooleanType
 		types[Player::class.java] = PlayerType
@@ -55,9 +56,9 @@ class CommandManager(private val instance: JavaPlugin) {
 							val type = Class.forName(param
 									.typeSignatureOrTypeDescriptor
 									.toString()
-									.replace("int", "kotlin.Integer")
-									.replace("boolean", "kotlin.Boolean")
-									.replace("char", "kotlin.Character"))
+									.replace("int", "java.lang.Integer")
+									.replace("boolean", "java.lang.Boolean")
+									.replace("char", "java.lang.Character"))
 
 							val isRequired = !param.annotationInfo.map { it.name }.contains("org.jetbrains.annotations.Nullable")
 
@@ -90,7 +91,7 @@ class CommandManager(private val instance: JavaPlugin) {
 						.getDeclaredMethodInfo(args[0])[0]
 						.loadClassAndGetMethod()
 
-				method.invoke(null, sender, parseArguments(subcommand, rest))
+				method.invoke(null, sender, *parseArguments(subcommand, rest).toTypedArray())
 				return@setExecutor true
 			}
 
@@ -100,28 +101,51 @@ class CommandManager(private val instance: JavaPlugin) {
 	}
 
 	private fun validateArguments(guide: List<Pair<Class<*>, Boolean>>, args: Array<String>): Boolean {
-		guide.forEachIndexed { index, guideArg ->
-			if (args.size - 1 < index && guideArg.second)
-				return@validateArguments false
+		val requiredArgs = guide.filter { it.second }
+		val optionalArgs = guide.filter { !it.second }
+		val providedOArgs = args.size - requiredArgs.size
 
-			val type = types[guideArg.first]
+		// If there are fewer arguments than required arguments, this is invalid
+		if (args.size < requiredArgs.size)
+			return false
+
+		// Validate all required arguments, if any
+		requiredArgs.forEachIndexed { index, arg ->
+			val type = types[arg.first]
 
 			if (type != null && !type.matches(args[index]))
-				return@validateArguments true
+				return false
+		}
+
+		// Validate all optional arguments, if any
+		optionalArgs.forEachIndexed { index, arg ->
+			val type = types[arg.first]
+
+			if (index + 1 > providedOArgs)
+				return true
+
+			if (type != null && !type.matches(args[index + requiredArgs.size]))
+				return false
 		}
 
 		return true
 	}
 
-	private fun parseArguments(guide: List<Parameter>, args: Array<String>): List<Any> {
+	private fun parseArguments(guide: List<Parameter>, args: Array<String>): List<Any?> {
 		val parsed = mutableListOf<Any>()
 
 		guide.forEachIndexed { index, guideArg ->
+			if (args.size - 1 < index)
+				return@forEachIndexed
+
 			val type = types[guideArg.first]!!
 			parsed.add(type.match(args[index])!!)
 		}
 
-		return parsed
+		return listOf(
+			*parsed.toTypedArray(),
+			*arrayOfNulls(guide.size - args.size)
+		)
 	}
 
 	private fun createCommand(anno: Command): PluginCommand {
