@@ -25,6 +25,7 @@ class CommandManager(private val instance: JavaPlugin) {
 	init {
 		types[String::class.java] = StringType
 		types[Int::class.java] = IntegerType
+		types[Integer::class.java] = IntegerType
 		types[Double::class.java] = DoubleType
 		types[Boolean::class.java] = BooleanType
 		types[Player::class.java] = PlayerType
@@ -130,7 +131,7 @@ class CommandManager(private val instance: JavaPlugin) {
 		return true
 	}
 
-	private fun parseArguments(guide: List<Parameter>, args: Array<String>): List<Any> {
+	private fun parseArguments(guide: List<Parameter>, args: Array<String>): List<Any?> {
 		val parsed = mutableListOf<Any>()
 
 		guide.forEachIndexed { index, guideArg ->
@@ -141,7 +142,10 @@ class CommandManager(private val instance: JavaPlugin) {
 			parsed.add(type.match(args[index])!!)
 		}
 
-		return parsed
+		return listOf(
+			*parsed.toTypedArray(),
+			*arrayOfNulls(guide.size - args.size)
+		)
 	}
 
 	private fun createCommand(anno: Command): PluginCommand {
