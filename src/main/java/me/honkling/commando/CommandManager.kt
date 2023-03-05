@@ -134,6 +134,9 @@ class CommandManager(private val instance: JavaPlugin) {
 		val parsed = mutableListOf<Any>()
 
 		guide.forEachIndexed { index, guideArg ->
+			if (args.size - 1 < index)
+				return parsed
+
 			val type = types[guideArg.first]!!
 			parsed.add(type.match(args[index])!!)
 		}
