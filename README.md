@@ -9,6 +9,7 @@ Commando is a completely automatic annotation-based Kotlin command framework for
   - [Setup](#setup)
   - [Creating Commands](#creating-commands)
   - [Command Arguments](#command-arguments)
+  - [Command Annotation](#command-annotation)
 - [License](#license)
 
 # Installation
@@ -160,6 +161,48 @@ object ExampleType : Type<Example> {
 Then, we can register the type when our plugin enables.
 ```kt
 commandManager.types[Example::class.java] = ExampleType
+```
+
+## Command Annotation
+
+You can provide extra parameters to the Command annotation.<br>
+This allows you to set permissions, usage messages, etc.<br>
+Below shows all the parameters you can use.
+```kt
+@Target(AnnotationTarget.FILE)
+annotation class Command(
+  val name: String,
+  vararg val aliases: String,
+  val description: String = "A Commando command.",
+  val usage: String = "Invalid usage. Please check /{0} help.", // {0} is substituted with the command name
+  val permission: String = "commando.{0}", // {0} is substituted with the command name
+  val permissionMessage: String = "You don't have permission to do that."
+)
+```
+
+Here's an example command using these parameters.
+```kt
+@file:Command(
+  "cake", // name
+  "the-lie", "the-cake", // aliases
+  description = "Gives a cake.",
+  usage = "Invalid usage. /cake [player]",
+  permission = "cakecore.cake",
+  permissionMessage = "You need cakecore.cake to do that!"
+)
+
+package me.honkling.example.commands
+
+import me.honkling.commando.lib.Command
+import org.bukkit.inventory.ItemStack
+import org.bukkit.Material
+
+fun cake(executor: Player, target: Player?) {
+  val player = target ?: executor
+  
+  player.inventory.addItem(ItemStack(Material.CAKE))
+  player.sendMessage("Here is your cake!")
+}
 ```
 
 # License
