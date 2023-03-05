@@ -91,7 +91,7 @@ class CommandManager(private val instance: JavaPlugin) {
 						.getDeclaredMethodInfo(args[0])[0]
 						.loadClassAndGetMethod()
 
-				method.invoke(null, sender, parseArguments(subcommand, rest))
+				method.invoke(null, sender, *parseArguments(subcommand, rest).toTypedArray())
 				return@setExecutor true
 			}
 

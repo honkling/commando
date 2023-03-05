@@ -11,12 +11,17 @@ class CommandCompletion(val manager: CommandManager) : TabCompleter {
 		val completions = mutableListOf<String>()
 		val subcommand = if (args.isEmpty() || !subcommands.contains(args[0].lowercase())) command.name else args[0]
 
-		if (args.isEmpty())
-			completions.addAll(subcommands.keys)
+		if (args.isEmpty() || args[0] == "")
+			completions.addAll(subcommands.keys.filter { it != command.name })
 
-		val arg = subcommands[subcommand]!![args.size - 1]
-		val completer = manager.types[arg.first]!!
-		completions.addAll(completer.complete(args.last()))
+		val subArgs = args.toMutableList()
+		if (subcommand != command.name) subArgs.removeAt(0)
+
+		if (subArgs.size > 0) {
+			val arg = subcommands[subcommand]!![subArgs.size - 1]
+			val completer = manager.types[arg.first]!!
+			completions.addAll(completer.complete(args.last()))
+		}
 
 		return completions
 	}
