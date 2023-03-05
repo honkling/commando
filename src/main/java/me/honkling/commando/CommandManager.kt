@@ -100,14 +100,31 @@ class CommandManager(private val instance: JavaPlugin) {
 	}
 
 	private fun validateArguments(guide: List<Pair<Class<*>, Boolean>>, args: Array<String>): Boolean {
-		guide.forEachIndexed { index, guideArg ->
-			if (args.size - 1 < index && guideArg.second)
-				return@validateArguments false
+		val requiredArgs = guide.filter { it.second }
+		val optionalArgs = guide.filter { !it.second }
+		val providedOArgs = args.size - requiredArgs.size
 
-			val type = types[guideArg.first]
+		// If there are fewer arguments than required arguments, this is invalid
+		if (args.size < requiredArgs.size)
+			return false
+
+		// Validate all required arguments, if any
+		requiredArgs.forEachIndexed { index, arg ->
+			val type = types[arg.first]
 
 			if (type != null && !type.matches(args[index]))
-				return@validateArguments true
+				return false
+		}
+
+		// Validate all optional arguments, if any
+		optionalArgs.forEachIndexed { index, arg ->
+			val type = types[arg.first]
+
+			if (index + 1 > providedOArgs)
+				return true
+
+			if (type != null && !type.matches(args[index + requiredArgs.size]))
+				return false
 		}
 
 		return true
