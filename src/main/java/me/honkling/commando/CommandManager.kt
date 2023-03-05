@@ -55,9 +55,9 @@ class CommandManager(private val instance: JavaPlugin) {
 							val type = Class.forName(param
 									.typeSignatureOrTypeDescriptor
 									.toString()
-									.replace("int", "kotlin.Int")
-									.replace("boolean", "kotlin.Boolean")
-									.replace("char", "kotlin.Character"))
+									.replace("int", "java.lang.Integer")
+									.replace("boolean", "java.lang.Boolean")
+									.replace("char", "java.lang.Character"))
 
 							val isRequired = !param.annotationInfo.map { it.name }.contains("org.jetbrains.annotations.Nullable")
 
