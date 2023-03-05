@@ -55,7 +55,7 @@ class CommandManager(private val instance: JavaPlugin) {
 							val type = Class.forName(param
 									.typeSignatureOrTypeDescriptor
 									.toString()
-									.replace("int", "kotlin.Integer")
+									.replace("int", "kotlin.Int")
 									.replace("boolean", "kotlin.Boolean")
 									.replace("char", "kotlin.Character"))
 
