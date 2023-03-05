@@ -136,7 +136,7 @@ class CommandManager(private val instance: JavaPlugin) {
 
 		guide.forEachIndexed { index, guideArg ->
 			if (args.size - 1 < index)
-				return parsed
+				return@forEachIndexed
 
 			val type = types[guideArg.first]!!
 			parsed.add(type.match(args[index])!!)
