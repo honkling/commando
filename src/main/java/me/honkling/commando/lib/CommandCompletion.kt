@@ -18,7 +18,12 @@ class CommandCompletion(val manager: CommandManager) : TabCompleter {
 		if (subcommand != command.name) subArgs.removeAt(0)
 
 		if (subArgs.size > 0) {
-			val arg = subcommands[subcommand]!![subArgs.size - 1]
+			val subParams = subcommands[subcommand]!!
+
+			if (subParams.isEmpty())
+				return completions
+
+			val arg = subParams[subArgs.size - 1]
 			val completer = manager.types[arg.first]!!
 			completions.addAll(completer.complete(args.last()))
 		}
