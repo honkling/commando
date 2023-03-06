@@ -15,6 +15,7 @@ import org.bukkit.command.PluginCommand
 import org.bukkit.command.SimpleCommandMap
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import java.lang.Math.max
 
 class CommandManager(private val instance: JavaPlugin) {
 	private val completer = CommandCompletion(this)
@@ -144,7 +145,7 @@ class CommandManager(private val instance: JavaPlugin) {
 
 		return listOf(
 			*parsed.toTypedArray(),
-			*arrayOfNulls(guide.size - args.size)
+			*arrayOfNulls(0.coerceAtLeast(guide.size - args.size))
 		)
 	}
 
