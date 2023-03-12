@@ -1,6 +1,6 @@
 package me.honkling.commando.lib
 
-@Target(AnnotationTarget.FILE)
+@Target(AnnotationTarget.FILE, AnnotationTarget.CLASS)
 annotation class Command(
 	val name: String,
 	vararg val aliases: String,
