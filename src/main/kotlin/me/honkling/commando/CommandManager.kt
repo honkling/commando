@@ -1,10 +1,7 @@
 package me.honkling.commando
 
 import io.github.classgraph.ClassGraph
-import me.honkling.commando.lib.Command
-import me.honkling.commando.lib.CommandCompletion
-import me.honkling.commando.lib.Parameter
-import me.honkling.commando.lib.Subcommand
+import me.honkling.commando.lib.*
 import me.honkling.commando.types.Type
 import me.honkling.commando.types.impl.*
 
@@ -15,7 +12,7 @@ import org.bukkit.command.PluginCommand
 import org.bukkit.command.SimpleCommandMap
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
-import java.lang.Math.max
+import java.lang.reflect.Modifier
 
 class CommandManager(private val instance: JavaPlugin) {
 	private val completer = CommandCompletion(this)
@@ -49,6 +46,11 @@ class CommandManager(private val instance: JavaPlugin) {
 				if (method.isPrivate)
 					return@forEach
 
+				if (!Modifier.isStatic(method.modifiers)) {
+					CommandoLogger.warning("Found a public non-static subcommand. We don't register this subcommand. Please add static or make it private.")
+					return@forEach
+				}
+
 				subcommands[method.name] = method
 						.parameterInfo
 						.toList()
@@ -58,10 +60,23 @@ class CommandManager(private val instance: JavaPlugin) {
 									.typeSignatureOrTypeDescriptor
 									.toString()
 									.replace("int", "java.lang.Integer")
+									.replace("byte", "java.lang.Byte")
+									.replace("short", "java.lang.Short")
+									.replace("long", "java.lang.Long")
+									.replace("float", "java.lang.Float")
 									.replace("boolean", "java.lang.Boolean")
-									.replace("char", "java.lang.Character"))
+									.replace("char", "java.lang.Character")
+									.replace("double", "java.lang.Double"))
 
 							val isRequired = !param.annotationInfo.map { it.name }.contains("org.jetbrains.annotations.Nullable")
+
+							if (!isRequired && param.annotationInfo.find { it.name.contains("Nullable") } != null)
+								CommandoLogger.warning("Found a nullable-marked parameter not using JetBrains' Nullable. Did you import the wrong annotation?")
+
+							if (!types.containsKey(type)) {
+								CommandoLogger.warning("Found a parameter using a type that Commando doesn't know how to parse. We won't register this subcommand.")
+								return@forEach
+							}
 
 							Pair(type, isRequired)
 						}
@@ -113,6 +128,7 @@ class CommandManager(private val instance: JavaPlugin) {
 		// Validate all required arguments, if any
 		requiredArgs.forEachIndexed { index, arg ->
 			val type = types[arg.first]
+				?: throw IllegalStateException("Found parameter type '${arg.first}' that Commando cannot parse.")
 
 			if (type != null && !type.matches(args[index]))
 				return false
