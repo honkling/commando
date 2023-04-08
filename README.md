@@ -46,7 +46,7 @@ After adding the repository, you can include Commando with the following:
 <dependency>
     <groupId>com.github.honkling</groupId>
     <artifactId>commando</artifactId>
-    <version>1.0.0</version>
+    <version>master-SNAPSHOT</version>
 </dependency>
 ```
 </details>
@@ -56,7 +56,7 @@ After adding the repository, you can include Commando with the following:
 
 ```groovy
 dependencies {
-    implementation 'com.github.honkling:commando:1.0.0'
+    implementation 'com.github.honkling:commando:master-SNAPSHOT'
 }
 ```
 </details>
