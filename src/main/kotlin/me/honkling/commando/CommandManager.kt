@@ -1,6 +1,5 @@
 package me.honkling.commando
 
-import io.github.classgraph.ClassGraph
 import me.honkling.commando.lib.*
 import me.honkling.commando.types.Type
 import me.honkling.commando.types.impl.*
@@ -12,7 +11,10 @@ import org.bukkit.command.PluginCommand
 import org.bukkit.command.SimpleCommandMap
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import org.jetbrains.annotations.Nullable
+import java.io.File
 import java.lang.reflect.Modifier
+import java.util.jar.JarInputStream
 
 class CommandManager(private val instance: JavaPlugin) {
 	private val completer = CommandCompletion(this)
@@ -31,67 +33,77 @@ class CommandManager(private val instance: JavaPlugin) {
 	}
 
 	fun registerCommands(pkg: String) {
-		val scanner = ClassGraph()
-				.enableAllInfo()
-				.acceptPackages(pkg)
-				.scan()
+		val instanceClass = instance::class.java
+		val path = instanceClass.protectionDomain.codeSource.location.toURI()
+		val jar = File(path)
+		val stream = JarInputStream(jar.inputStream())
+		val directory = pkg.replace('.', '/')
 
-		scanner.getClassesWithAnnotation(Command::class.java).forEach { clazz ->
-			val anno = clazz.annotationInfo.find { it.name.startsWith("me.honkling.commando.lib") }!!
+		while (true) {
+			val entry = stream.nextJarEntry ?: break
+			val entryName = entry.name
 
-			val name = (anno.parameterValues["name"].value as String).lowercase()
+			if (!entryName.startsWith(directory) || !entryName.endsWith(".class"))
+				continue
+
+			val clazz = instanceClass.classLoader.loadClass(entryName
+				.replace('/', '.')
+				.replace(".class", ""))
+
+			if (!clazz.isAnnotationPresent(Command::class.java))
+				continue
+
+			val anno = clazz.getAnnotation(Command::class.java)!!
+			val name = anno.name.lowercase()
 			val subcommands = mutableMapOf<String, List<Parameter>>()
 
-			clazz.methodInfo.forEach { method ->
-				if (method.isPrivate)
-					return@forEach
-
+			clazz.methods.forEach { method ->
 				if (!Modifier.isStatic(method.modifiers)) {
-					CommandoLogger.warning("Found a public non-static subcommand. We don't register this subcommand. Please add static or make it private.")
+					CommandoLogger.warning("Found a public non-static subcommand. We didn't register this subcommand. Please add static or make it private.")
 					return@forEach
 				}
 
 				subcommands[method.name] = method
-						.parameterInfo
-						.toList()
-						.subList(1, method.parameterInfo.size)
-						.map { param ->
-							val type = Class.forName(param
-									.typeSignatureOrTypeDescriptor
-									.toString()
-									.replace("int", "java.lang.Integer")
-									.replace("byte", "java.lang.Byte")
-									.replace("short", "java.lang.Short")
-									.replace("long", "java.lang.Long")
-									.replace("float", "java.lang.Float")
-									.replace("boolean", "java.lang.Boolean")
-									.replace("char", "java.lang.Character")
-									.replace("double", "java.lang.Double"))
+					.parameters
+					.toList()
+					.subList(1, method.parameters.size)
+					.map { param ->
+						val type = Class.forName(
+							param
+								.type
+								.name
+								.replace("int", "java.lang.Integer")
+								.replace("byte", "java.lang.Byte")
+								.replace("short", "java.lang.Short")
+								.replace("long", "java.lang.Long")
+								.replace("float", "java.lang.Float")
+								.replace("boolean", "java.lang.Boolean")
+								.replace("char", "java.lang.Character")
+								.replace("double", "java.lang.Double")
+						)
 
-							val isRequired = !param.annotationInfo.map { it.name }.contains("org.jetbrains.annotations.Nullable")
+						val isRequired = !param.isAnnotationPresent(Nullable::class.java)
 
-							if (!isRequired && param.annotationInfo.find { it.name.contains("Nullable") } != null)
-								CommandoLogger.warning("Found a nullable-marked parameter not using JetBrains' Nullable. Did you import the wrong annotation?")
+						if (!isRequired && param.annotations.find { it::class.java.name.contains("Nullable") } != null)
+							CommandoLogger.warning("Found a nullable-marked parameter not using JetBrains' Nullable. Did you import the wrong annotation?")
 
-							if (!types.containsKey(type)) {
-								CommandoLogger.warning("Found a parameter using a type that Commando doesn't know how to parse. We won't register this subcommand.")
-								return@forEach
-							}
-
-							Pair(type, isRequired)
+						if (!types.containsKey(type)) {
+							CommandoLogger.warning("Found a parameter using a type that Commando doesn't know how to parse. We won't register this subcommand.")
+							return@forEach
 						}
+
+						Pair(type, isRequired)
+					}
 			}
 
-			val command = createCommand(anno.loadClassAndInstantiate() as Command)
+			val command = createCommand(anno)
 
 			command.setExecutor { sender, _, _, args ->
 				if (args.isEmpty() || !subcommands.containsKey(args[0].lowercase())) {
 					if (!validateArguments(subcommands[name]!!, args))
 						return@setExecutor false
 
-					val method = clazz
-							.getDeclaredMethodInfo(name)[0]
-							.loadClassAndGetMethod()
+					val method = clazz.getMethod(name)
 
 					method.invoke(null, sender, *(parseArguments(subcommands[name]!!, args).toTypedArray()))
 					return@setExecutor true
@@ -103,9 +115,7 @@ class CommandManager(private val instance: JavaPlugin) {
 				if (!validateArguments(subcommand, rest))
 					return@setExecutor false
 
-				val method = clazz
-						.getDeclaredMethodInfo(args[0])[0]
-						.loadClassAndGetMethod()
+				val method = clazz.getMethod(args[0])
 
 				method.invoke(null, sender, *parseArguments(subcommand, rest).toTypedArray())
 				return@setExecutor true
