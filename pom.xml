@@ -130,10 +130,5 @@
             <version>${kotlin.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>io.github.classgraph</groupId>
-            <artifactId>classgraph</artifactId>
-            <version>4.8.154</version>
-        </dependency>
     </dependencies>
 </project>
