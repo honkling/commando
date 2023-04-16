@@ -103,7 +103,7 @@ class CommandManager(private val instance: JavaPlugin) {
 					if (!validateArguments(subcommands[name]!!, args))
 						return@setExecutor false
 
-					val method = clazz.getMethod(name)
+					val method = clazz.methods.find { it.name == name } ?: return@setExecutor false
 
 					method.invoke(null, sender, *(parseArguments(subcommands[name]!!, args).toTypedArray()))
 					return@setExecutor true
