@@ -115,7 +115,7 @@ class CommandManager(private val instance: JavaPlugin) {
 				if (!validateArguments(subcommand, rest))
 					return@setExecutor false
 
-				val method = clazz.getMethod(args[0])
+				val method = clazz.methods.find { it.name == args[0] } ?: return@setExecutor false
 
 				method.invoke(null, sender, *parseArguments(subcommand, rest).toTypedArray())
 				return@setExecutor true
