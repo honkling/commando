@@ -20,7 +20,7 @@ class CommandCompletion(val manager: CommandManager) : TabCompleter {
 		if (subArgs.size > 0) {
 			val subParams = subcommands[subcommand] ?: return completions
 
-			if (subParams.isEmpty())
+			if (subParams.isEmpty() || subArgs.size - 1 >= subParams.size)
 				return completions
 
 			val arg = subParams[subArgs.size - 1]
