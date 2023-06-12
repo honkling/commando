@@ -1,8 +1,0 @@
-name: Commando
-version: '2.0.0'
-main: me.honkling.commando.Commando
-api-version: 1.19
-prefix: commando
-load: STARTUP
-authors: [ honkling ]
-description: A lightweight command manager.
