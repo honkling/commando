@@ -6,6 +6,6 @@ annotation class Command(
     vararg val aliases: String,
     val description: String = "A Commando command.",
     val usage: String = "Invalid usage.",
-    val permission: String = "commando.{0}",
+    val permission: String = "",
     val permissionMessage: String = "You don't have permission to do that."
 )
