@@ -74,7 +74,7 @@ Supply the package containing all your commands, and you're good to go.
 ```java
 @Override
 public void onEnable() {
-    CommandManager commandManager = CommandManager(this);
+    CommandManager commandManager = new CommandManager(this);
     commandManager.registerCommands("me.honkling.example.commands");
 }
 ```
