@@ -19,7 +19,7 @@ class CommandCompleter(val manager: CommandManager) : TabCompleter {
         if (args.size <= 1)
             completions.addAll(command.keys.filter { it != command.name && it.contains(if (args.isEmpty()) "" else args[0]) })
 
-        val (method, parsedArgs) = command.getMethod(command, args) ?: return completions
+        val (method, parsedArgs) = command.getMethod(sender, command, args) ?: return completions
         val restArgs = args.subList(args.size - parsedArgs.filterNotNull().size, args.size)
 
         if (restArgs.isNotEmpty()) {
