@@ -37,7 +37,7 @@ class CCommand(
     }
     
     fun executor(sender: CommandSender, command: Command, _label: String, args: Array<String>): Boolean {
-        val (method, parsedArgs) = getMethod(this, args.toList()) ?: return false
+        val (method, parsedArgs) = getMethod(sender, this, args.toList()) ?: return false
         val first = method.parameters[0].type
 
         if (first !in listOf(
@@ -58,12 +58,12 @@ class CCommand(
         return true
     }
     
-    fun getMethod(command: CCommand, args: List<String>): Pair<Method, List<Any?>>? {
+    fun getMethod(sender: CommandSender, command: CCommand, args: List<String>): Pair<Method, List<Any?>>? {
         val section = (command[if (args.isNotEmpty()) args[0] else name] ?: command[name]) ?: return null
 
         for (candidate in section) {
             if (candidate is CCommand) {
-                val method = getMethod(candidate, args.subList(1, args.size))
+                val method = getMethod(sender, candidate, args.subList(1, args.size))
                 if (method != null) return method
             }
 
@@ -89,14 +89,14 @@ class CCommand(
 
                     val restArgs = args.subList(index, args.size)
                     val typeHandler = parameter.second
-                    val match = typeHandler.matches(restArgs.joinToString(" "))
+                    val match = typeHandler.matches(sender, restArgs.joinToString(" "))
 
                     if (!match.matches) {
                         validCandidate = false
                         break
                     }
 
-                    parsedArgs += typeHandler.match(restArgs.joinToString(" "))!!
+                    parsedArgs += typeHandler.match(sender, restArgs.joinToString(" "))!!
                     index += match.size
                 }
 

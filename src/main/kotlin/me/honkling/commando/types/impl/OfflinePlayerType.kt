@@ -4,17 +4,18 @@ import me.honkling.commando.types.MatchResult
 import me.honkling.commando.types.Type
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
+import org.bukkit.command.CommandSender
 
 object OfflinePlayerType : Type<OfflinePlayer> {
-	override fun match(input: String): OfflinePlayer {
+	override fun match(player: CommandSender, input: String): OfflinePlayer {
 		return Bukkit.getOfflinePlayer(input.split(" ")[0])
 	}
 
-	override fun matches(input: String): MatchResult {
+	override fun matches(player: CommandSender, input: String): MatchResult {
 		return MatchResult(true, 1)
 	}
 
-	override fun complete(input: String): List<String> {
+	override fun complete(player: CommandSender, input: String): List<String> {
 		return Bukkit
 				.getOnlinePlayers()
 				.map { it.name }

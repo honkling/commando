@@ -2,11 +2,12 @@ package me.honkling.commando.types.impl
 
 import me.honkling.commando.types.MatchResult
 import me.honkling.commando.types.Type
+import org.bukkit.command.CommandSender
 
 object StringType : Type<String> {
 	val regex = Regex("^(\"([^\"]|\\\\\")*\"|\\S+)")
 
-	override fun match(input: String): String {
+	override fun match(player: CommandSender, input: String): String {
 		val match = regex.find(input)!!.value
 
 		if (match.startsWith("\"") && match.endsWith("\""))
@@ -18,7 +19,7 @@ object StringType : Type<String> {
 		return match
 	}
 
-	override fun matches(input: String): MatchResult {
+	override fun matches(player: CommandSender, input: String): MatchResult {
 		if (!regex.containsMatchIn(input))
 			return MatchResult(false)
 
@@ -26,7 +27,7 @@ object StringType : Type<String> {
 		return MatchResult(true, match.split(" ").size)
 	}
 
-	override fun complete(input: String): List<String> {
+	override fun complete(player: CommandSender, input: String): List<String> {
 		return emptyList()
 	}
 }

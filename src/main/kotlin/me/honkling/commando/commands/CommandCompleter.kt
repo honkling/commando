@@ -25,7 +25,7 @@ class CommandCompleter(val manager: CommandManager) : TabCompleter {
         if (restArgs.isNotEmpty()) {
             val param = method.parameters[restArgs.size].type
             val type = manager.types[param] ?: return completions
-            completions.addAll(type.complete(restArgs.last()))
+            completions.addAll(type.complete(sender, restArgs.last()))
         }
 
         return completions
