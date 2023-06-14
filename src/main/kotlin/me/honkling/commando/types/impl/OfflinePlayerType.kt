@@ -7,15 +7,15 @@ import org.bukkit.OfflinePlayer
 import org.bukkit.command.CommandSender
 
 object OfflinePlayerType : Type<OfflinePlayer> {
-	override fun match(player: CommandSender, input: String): OfflinePlayer {
+	override fun match(sender: CommandSender, input: String): OfflinePlayer {
 		return Bukkit.getOfflinePlayer(input.split(" ")[0])
 	}
 
-	override fun matches(player: CommandSender, input: String): MatchResult {
+	override fun matches(sender: CommandSender, input: String): MatchResult {
 		return MatchResult(true, 1)
 	}
 
-	override fun complete(player: CommandSender, input: String): List<String> {
+	override fun complete(sender: CommandSender, input: String): List<String> {
 		return Bukkit
 				.getOnlinePlayers()
 				.map { it.name }

@@ -7,15 +7,15 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 object PlayerType : Type<Player> {
-	override fun match(player: CommandSender, input: String): Player {
+	override fun match(sender: CommandSender, input: String): Player {
 		return Bukkit.getPlayer(input.split(" ")[0])!!
 	}
 
-	override fun matches(player: CommandSender, input: String): MatchResult {
+	override fun matches(sender: CommandSender, input: String): MatchResult {
 		return MatchResult(Bukkit.getPlayer(input.split(" ")[0]) != null, 1)
 	}
 
-	override fun complete(player: CommandSender, input: String): List<String> {
+	override fun complete(sender: CommandSender, input: String): List<String> {
 		return Bukkit
 				.getOnlinePlayers()
 				.map { it.name }

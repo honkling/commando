@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender
 object StringType : Type<String> {
 	val regex = Regex("^(\"([^\"]|\\\\\")*\"|\\S+)")
 
-	override fun match(player: CommandSender, input: String): String {
+	override fun match(sender: CommandSender, input: String): String {
 		val match = regex.find(input)!!.value
 
 		if (match.startsWith("\"") && match.endsWith("\""))
@@ -19,7 +19,7 @@ object StringType : Type<String> {
 		return match
 	}
 
-	override fun matches(player: CommandSender, input: String): MatchResult {
+	override fun matches(sender: CommandSender, input: String): MatchResult {
 		if (!regex.containsMatchIn(input))
 			return MatchResult(false)
 
@@ -27,7 +27,7 @@ object StringType : Type<String> {
 		return MatchResult(true, match.split(" ").size)
 	}
 
-	override fun complete(player: CommandSender, input: String): List<String> {
+	override fun complete(sender: CommandSender, input: String): List<String> {
 		return emptyList()
 	}
 }

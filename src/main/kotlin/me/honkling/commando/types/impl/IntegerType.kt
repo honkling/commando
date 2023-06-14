@@ -5,15 +5,15 @@ import me.honkling.commando.types.Type
 import org.bukkit.command.CommandSender
 
 object IntegerType : Type<Int> {
-    override fun match(player: CommandSender, input: String): Int {
+    override fun match(sender: CommandSender, input: String): Int {
         return input.split(" ")[0].toInt()
     }
 
-    override fun matches(player: CommandSender, input: String): MatchResult {
+    override fun matches(sender: CommandSender, input: String): MatchResult {
         return MatchResult(Regex("^\\d+(?!\\S)").containsMatchIn(input), 1)
     }
 
-    override fun complete(player: CommandSender, input: String): List<String> {
+    override fun complete(sender: CommandSender, input: String): List<String> {
         return emptyList()
     }
 }
