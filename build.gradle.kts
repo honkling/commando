@@ -3,6 +3,10 @@ plugins {
     `maven-publish`
 }
 
+val projectVersion = "0.1.0"
+group = "me.honkling.commando"
+version = projectVersion
+
 repositories {
     mavenCentral()
 }
@@ -13,7 +17,17 @@ kotlin {
 
 subprojects {
     apply(plugin = "java")
-}
+    apply(plugin = "maven-publish")
 
-group = "me.honkling.commando"
-version = "0.1.0"
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = "me.honkling.commando"
+                artifactId = project.name
+                version = projectVersion
+
+                from(components["java"])
+            }
+        }
+    }
+}
