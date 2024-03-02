@@ -1,6 +1,6 @@
 name: commando
 version: '${version}'
-main: me.honkling.commando.spigot.Spigot
+main: me.honkling.commando.spigot.Commando
 api-version: '1.19'
 prefix: commando
 load: STARTUP

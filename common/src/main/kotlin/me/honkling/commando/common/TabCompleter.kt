@@ -5,7 +5,7 @@ import me.honkling.commando.common.tree.CommandNode
 import me.honkling.commando.common.tree.Node
 import me.honkling.commando.common.tree.SubcommandNode
 
-fun tabComplete(manager: CommandManager, sender: ICommandSender<*>, node: CommandNode, args: Array<String>): List<String> {
+fun tabComplete(manager: CommandManager<*>, sender: ICommandSender<*>, node: CommandNode, args: Array<String>): List<String> {
     val last = args.last()
 
     // /example

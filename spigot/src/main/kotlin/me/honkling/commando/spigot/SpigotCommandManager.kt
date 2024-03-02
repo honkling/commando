@@ -18,7 +18,7 @@ import org.bukkit.command.PluginCommand
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 
-class SpigotCommandManager(plugin: JavaPlugin) : CommandManager(Plugin(plugin)) {
+class SpigotCommandManager(plugin: JavaPlugin) : CommandManager<JavaPlugin>(Plugin(plugin)) {
     init {
         types[Player::class.java] = PlayerType
         types[OfflinePlayer::class.java] = OfflinePlayerType
@@ -44,7 +44,7 @@ class SpigotCommandManager(plugin: JavaPlugin) : CommandManager(Plugin(plugin)) 
                 return@setTabCompleter tabComplete(this, SenderProvider(sender), node, args)
             }
 
-            commandMap.register((plugin as Plugin).plugin.name, command)
+            commandMap.register(plugin.get().name, command)
         }
     }
 
@@ -62,7 +62,7 @@ class SpigotCommandManager(plugin: JavaPlugin) : CommandManager(Plugin(plugin)) 
         val mm = MiniMessage.miniMessage()
         val constructor = PluginCommand::class.java.declaredConstructors[0]
         constructor.isAccessible = true
-        val command = constructor.newInstance(node.name, (plugin as Plugin).plugin) as PluginCommand
+        val command = constructor.newInstance(node.name, plugin.get()) as PluginCommand
 
         command.description = node.description
         command.usage = LegacyComponentSerializer.legacySection().serialize(mm.deserialize(node.usage.replace("{0}", node.name)))

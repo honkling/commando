@@ -8,18 +8,18 @@ import me.honkling.commando.common.tree.SubcommandNode
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
-fun scanForCommands(manager: CommandManager, pkg: String): List<CommandNode> {
-	val clazz = manager.plugin::class.java
+fun scanForCommands(manager: CommandManager<*>, pkg: String): List<CommandNode> {
+	val clazz = manager.plugin.get()!!::class.java
 	val classes = getClassesInPackage(clazz, pkg, ::isCommand)
 
 	return parseClasses(manager, classes)
 }
 
-private fun parseClasses(manager: CommandManager, classes: List<Class<*>>): List<CommandNode> {
+private fun parseClasses(manager: CommandManager<*>, classes: List<Class<*>>): List<CommandNode> {
 	return classes.map { parseClass(manager, null, it) }
 }
 
-private fun parseClass(manager: CommandManager, parent: Node?, clazz: Class<*>): CommandNode {
+private fun parseClass(manager: CommandManager<*>, parent: Node?, clazz: Class<*>): CommandNode {
 	val annotation = clazz.getAnnotation(Command::class.java)
 	val node = CommandNode(
 			parent,
@@ -36,7 +36,7 @@ private fun parseClass(manager: CommandManager, parent: Node?, clazz: Class<*>):
 	return node
 }
 
-private fun parseChildren(manager: CommandManager, node: Node, clazz: Class<*>): List<Node> {
+private fun parseChildren(manager: CommandManager<*>, node: Node, clazz: Class<*>): List<Node> {
 	val nodes = mutableListOf<Node>()
 	val classes = clazz.classes.filter { isCommand(it) }
 	val methods = clazz.declaredMethods.filter { isSubcommand(manager, it) }
@@ -47,7 +47,7 @@ private fun parseChildren(manager: CommandManager, node: Node, clazz: Class<*>):
 	return nodes
 }
 
-private fun parseSubcommand(manager: CommandManager, parent: Node, method: Method): SubcommandNode? {
+private fun parseSubcommand(manager: CommandManager<*>, parent: Node, method: Method): SubcommandNode? {
 	if (!validateParameters(manager, method)) {
 		manager.plugin.warn("Skipping invalid subcommand '${method.name}'")
 		return null
@@ -61,7 +61,7 @@ private fun parseSubcommand(manager: CommandManager, parent: Node, method: Metho
 	)
 }
 
-private fun validateParameters(manager: CommandManager, method: Method): Boolean {
+private fun validateParameters(manager: CommandManager<*>, method: Method): Boolean {
 	var hasOptional = false
 
 	val first = method.parameters.first().type
@@ -88,7 +88,7 @@ private fun validateParameters(manager: CommandManager, method: Method): Boolean
 	return true
 }
 
-private fun validateParameter(manager: CommandManager, parameter: java.lang.reflect.Parameter): Boolean {
+private fun validateParameter(manager: CommandManager<*>, parameter: java.lang.reflect.Parameter): Boolean {
 	val type = getParameterType(manager, parameter)
 	
 	if (type !in manager.types) {
@@ -99,7 +99,7 @@ private fun validateParameter(manager: CommandManager, parameter: java.lang.refl
 	return true
 }
 
-private fun parseParameters(manager: CommandManager, method: Method): List<Parameter> {
+private fun parseParameters(manager: CommandManager<*>, method: Method): List<Parameter> {
 	return method.parameters.map { parameter ->
 		val type = getParameterType(manager, parameter)
 		val isRequired = isParameterRequired(parameter)
@@ -112,7 +112,7 @@ private fun isParameterRequired(parameter: java.lang.reflect.Parameter): Boolean
 	return parameter.annotations.none { "Nullable" in (it.annotationClass.qualifiedName ?: "") }
 }
 
-private fun getParameterType(manager: CommandManager, parameter: java.lang.reflect.Parameter): Class<*> {
+private fun getParameterType(manager: CommandManager<*>, parameter: java.lang.reflect.Parameter): Class<*> {
 	val type = getClassFromType(parameter.type)
 
 	if (type !in manager.types && parameter.type.isArray)
@@ -134,7 +134,7 @@ private fun getClassFromType(clazz: Class<*>): Class<*> {
 		.replace("boolean", "java.lang.Boolean"))
 }
 
-private fun isSubcommand(manager: CommandManager, method: Method): Boolean {
+private fun isSubcommand(manager: CommandManager<*>, method: Method): Boolean {
 	val modifiers = method.modifiers
 	val isPublic = Modifier.isPublic(modifiers)
 	val isStatic = Modifier.isStatic(modifiers)
