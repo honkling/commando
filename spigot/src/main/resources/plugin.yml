@@ -1,0 +1,9 @@
+name: commando
+version: '${version}'
+main: me.honkling.commando.spigot.Spigot
+api-version: '1.19'
+prefix: commando
+load: STARTUP
+authors: [ honkling ]
+description: Command manager for various platforms.
+website: https://github.com/honkling/commando
