@@ -62,7 +62,7 @@ class SpigotCommandManager(plugin: JavaPlugin) : CommandManager(Plugin(plugin)) 
         val mm = MiniMessage.miniMessage()
         val constructor = PluginCommand::class.java.declaredConstructors[0]
         constructor.isAccessible = true
-        val command = constructor.newInstance(node.name, plugin) as PluginCommand
+        val command = constructor.newInstance(node.name, (plugin as Plugin).plugin) as PluginCommand
 
         command.description = node.description
         command.usage = LegacyComponentSerializer.legacySection().serialize(mm.deserialize(node.usage.replace("{0}", node.name)))
