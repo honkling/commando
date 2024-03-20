@@ -26,32 +26,10 @@ abstract class CommandManager<T>(val plugin: IPlugin<T>) {
 
         for ((_, node) in commands)
             registerCommand(node)
-
-//        val commandMap = Bukkit.getCommandMap()
-//
-//        for ((_, node) in commands) {
-//            val command = node.createPluginCommand(instance)
-//            command.setExecutor(::onCommand)
-//
-//            command.setTabCompleter { sender, command, _, args ->
-//                return@setTabCompleter tabComplete(this, sender, command, args)
-//            }
-//
-//            commandMap.register(instance.name, command)
-//        }
     }
 
     abstract fun isValidSender(clazz: Class<*>): Boolean
     abstract fun registerCommand(node: CommandNode)
-
-//    private fun onCommand(sender: ICommandSender, bukkitCommand: Command, label: String, args: Array<String>): Boolean {
-//        val command = commands[bukkitCommand.name.lowercase()] ?: return false
-//        val (subcommand, parameters) = getCommand(sender, command, args.toList()) ?: return false
-//
-//        subcommand.method.invoke(null, sender, *parameters.toTypedArray())
-//
-//        return true
-//    }
 
     fun getCommand(sender: ICommandSender<*>, command: CommandNode, args: List<String>): Pair<SubcommandNode, List<Any>>? {
         val postFirst = args.slice(1 until args.size)
