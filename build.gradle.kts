@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.honkling.commando"
-version = "3.0.0-Build1"
+version = "3.0.0-Build2"
 
 subprojects {
     apply(plugin = "com.gradleup.shadow")
