@@ -11,9 +11,11 @@ import me.honkling.commando.common.parser.InteractionType
 import me.honkling.commando.common.parser.getContextProviderType
 import me.honkling.commando.common.parser.handle.FunctionHandle
 import me.honkling.commando.common.platform.User
+import me.honkling.commando.common.type.EnumType
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.instanceParameter
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaMethod
 
@@ -35,7 +37,10 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
             ?.let { senderClass.java.isAssignableFrom(it.type) } == true
 
         val invalidParameterTypes = parameters
-            .filter { it.first.type.kotlin !in commando.typeRegistry }
+            .filter {
+                val type = it.first.type.kotlin
+                type !in commando.typeRegistry && !type.isSubclassOf(Enum::class)
+            }
 
         val earliestOptional = parameters.indexOfFirst { it.second.isOptional }
 
@@ -68,7 +73,10 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
         for ((java, kotlin) in handle.parameters.slice(1..<handle.parameters.size)) {
             println("Java parameter: ${java.name} ${java.type}")
             println("Kotlin parameter: ${kotlin.name} ${kotlin.type}")
-            val type = commando.typeRegistry[java.type.kotlin]!!
+            @Suppress("UNCHECKED_CAST")
+            val type = commando.typeRegistry[java.type.kotlin]
+                ?: EnumType(java.type.kotlin as KClass<out Enum<*>>)
+
             node.children += ParameterNode(
                 node,
                 kotlin.name ?: java.name,

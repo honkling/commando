@@ -26,7 +26,9 @@ class ParameterNode<Anno : Annotation>(
 
     override fun autoComplete(user: User<*>, input: String): List<String> {
         val (type) = context
+        println("Auto completing parameter with input '$input'")
         val completions = type.suggest(user, this, input)
+        println(completions)
 
         return completions
     }

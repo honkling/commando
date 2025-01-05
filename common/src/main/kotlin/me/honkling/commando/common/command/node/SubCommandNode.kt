@@ -55,10 +55,17 @@ class SubCommandNode<Anno : Annotation>(
         var input = input
 
         for (parameter in children as List<ParameterNode<Anno>>) {
+            println("Now trying parameter ${parameter.context} with input '${input}'")
             val parseResult = parameter.parse(user, input, true)
+            println(parseResult)
 
             if (parseResult.isSuccess) {
-                input = parseResult.getOrThrow().second
+                val newInput = parseResult.getOrThrow().second
+
+                if (' ' !in input && newInput.isEmpty())
+                    return parameter.autoComplete(user, input)
+
+                input = newInput.trim()
                 continue
             }
 

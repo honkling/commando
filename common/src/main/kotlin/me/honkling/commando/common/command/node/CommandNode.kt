@@ -43,6 +43,7 @@ class CommandNode<Anno : Annotation>(
     }
 
     override fun autoComplete(user: User<*>, input: String): List<String> {
+        println("Request: '$input'")
         val defaultNode = children.find { it.name == name }
 
         if (' ' !in input) {
@@ -63,7 +64,9 @@ class CommandNode<Anno : Annotation>(
 
         if (subCommand != null) {
             subCommand as AutoCompletable
-            return subCommand.autoComplete(user, input.substringAfter(' '))
+            println("Found subcommand $subCommand")
+            println("New input: '${input.substringAfter(' ', "")}'")
+            return subCommand.autoComplete(user, input.substringAfter(' ', ""))
         }
 
         // The user provided a bad sub command or something else
