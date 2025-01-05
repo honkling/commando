@@ -37,8 +37,9 @@ class PlayerType : Type<Player>() {
     }
 
     override fun suggest(user: User<*>, node: Node<*>, input: String): List<String> {
+        val first = input(input, 1)
         return Bukkit.getOnlinePlayers()
             .map(Player::getName)
-            .filter { input in it }
+            .filter { first in it }
     }
 }
