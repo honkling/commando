@@ -6,7 +6,7 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.jvm.javaMethod
 
 class FunctionHandle(
-    val interactionType: InteractionType<*, *, *>,
+    val interactionType: InteractionType<*, *>,
     val reflector: KFunction<Unit>
 ) {
     val name = reflector.name

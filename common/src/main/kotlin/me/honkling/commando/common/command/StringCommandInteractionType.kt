@@ -23,15 +23,15 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
     protected open val commando: Commando,
     private val senderClass: KClass<Sender>,
     private val annotationClass: KClass<Anno>
-) : InteractionType<Sender, Event, Anno>() {
-    override fun testParent(parent: KClass<*>): Result<Unit> {
+) : InteractionType<Event, Anno>() {
+    override fun testParent(parent: KClass<*>): Result<Nothing?> {
         if (parent.java.annotations.none { it.annotationClass == annotationClass })
             return Result.failure(IllegalArgumentException("Command doesn't have an annotation"))
 
-        return Result.success(Unit)
+        return Result.success(null)
     }
 
-    override fun testFunction(parent: KClass<*>, handle: FunctionHandle): Result<Unit> {
+    override fun testFunction(parent: KClass<*>, handle: FunctionHandle): Result<Nothing?> {
         val parameters = handle.parameters.toMutableList()
         val isSenderValid = parameters.removeFirstOrNull()?.first
             ?.let { senderClass.java.isAssignableFrom(it.type) } == true
@@ -62,7 +62,7 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
             return Result.failure(IllegalArgumentException("Parameters $names have unrecognized types"))
         }
 
-        return Result.success(Unit)
+        return Result.success(null)
     }
 
     override fun parse(root: Node<Anno>, parent: KClass<*>, handle: FunctionHandle) {
@@ -87,7 +87,7 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
         root.children += node
     }
 
-    fun execute(root: Node<Anno>, user: User<*>, input: String, context: Event): Result<Unit> {
+    fun execute(root: Node<Anno>, user: User<*>, input: String, context: Event): Result<Nothing?> {
         root as CommandNode<Anno>
         val parseResult = root.parse(user, input)
 
@@ -146,6 +146,6 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
 
         function.isAccessible = true
         function.callBy(parameterMap)
-        return Result.success(Unit)
+        return Result.success(null)
     }
 }

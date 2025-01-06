@@ -7,16 +7,11 @@ import me.honkling.commando.common.parser.handle.FunctionHandle
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KParameter
 import kotlin.reflect.full.createType
-import kotlin.reflect.full.declaredFunctions
-import kotlin.reflect.full.declaredMemberFunctions
-import kotlin.reflect.full.memberFunctions
-import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.kotlinFunction
 
 data class ClassParseResult(
-    val interactionType: InteractionType<*, *,  *>,
+    val interactionType: InteractionType<*,  *>,
     val node: Node<*>
 )
 
@@ -39,7 +34,7 @@ fun parseClass(commando: Commando, clazz: KClass<*>): Result<ClassParseResult> {
             println("${kotlin.returnType != Unit::class} (${kotlin.returnType} != ${Unit::class}) - ${!Modifier.isStatic(java.modifiers)}")
             println("${java.declaringClass.name}")
 
-            if (kotlin.returnType != Unit::class.createType() || !Modifier.isStatic(java.modifiers))
+            if (!Modifier.isStatic(java.modifiers))
                 continue
 
             @Suppress("UNCHECKED_CAST")

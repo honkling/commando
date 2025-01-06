@@ -38,7 +38,7 @@ class CommandInteraction(
         return CommandNode(null, command.name, command)
     }
 
-    override fun execute(root: Node<Command>, context: SpigotContext): Result<Unit> {
+    override fun execute(root: Node<Command>, context: SpigotContext): Result<Nothing?> {
         root as CommandNode<Command>
         val user = commando.userManager.getUser(context.sender)
         return execute(root, user, context.input, context)

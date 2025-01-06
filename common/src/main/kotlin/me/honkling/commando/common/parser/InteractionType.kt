@@ -4,13 +4,13 @@ import me.honkling.commando.common.node.Node
 import me.honkling.commando.common.parser.handle.FunctionHandle
 import kotlin.reflect.KClass
 
-abstract class InteractionType<Interaction : Any, Context : Any, RootContext : Any> {
+abstract class InteractionType<Context, RootContext> {
     val contexts = mutableMapOf<KClass<*>, ContextCreator<Context, *>>()
 
     /**
      * Tests the class if it is valid for this interaction type.
      */
-    abstract fun testParent(parent: KClass<*>): Result<Unit>
+    abstract fun testParent(parent: KClass<*>): Result<Nothing?>
 
     /**
      * Tests the function if it is valid for this interaction type.
@@ -18,7 +18,7 @@ abstract class InteractionType<Interaction : Any, Context : Any, RootContext : A
      * The parent of this function is guaranteed to be
      * valid as defined by the 'test parent' method.
      */
-    abstract fun testFunction(parent: KClass<*>, handle: FunctionHandle): Result<Unit>
+    abstract fun testFunction(parent: KClass<*>, handle: FunctionHandle): Result<Nothing?>
 
     /**
      * Creates the root node at the beginning of parsing.
@@ -41,7 +41,7 @@ abstract class InteractionType<Interaction : Any, Context : Any, RootContext : A
      * Takes the root node and context (typically an event, ex. an
      * event when a user runs a command) and executes the node.
      */
-    abstract fun execute(root: Node<RootContext>, context: Context): Result<Unit>
+    abstract fun execute(root: Node<RootContext>, context: Context): Result<Nothing?>
 
     /**
      * Takes the complete root node and performs any required
