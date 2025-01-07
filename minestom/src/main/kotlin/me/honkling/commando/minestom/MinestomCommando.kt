@@ -5,9 +5,12 @@ import me.honkling.commando.minestom.command.CommandInteraction
 import me.honkling.commando.minestom.event.EventInteraction
 import me.honkling.commando.minestom.platform.MinestomUserManager
 import me.honkling.commando.minestom.type.PlayerType
+import net.minestom.server.command.CommandSender
 import net.minestom.server.entity.Player
 
-class MinestomCommando : Commando() {
+class MinestomCommando(
+    val canAccessBlock: (sender: CommandSender, command: String?, permission: String) -> Boolean = { _, _, _ -> true }
+) : Commando() {
     override val userManager = MinestomUserManager()
 
     init {

@@ -132,9 +132,10 @@ class CommandInteraction(
                 return true
             }
 
-            override fun hasAccess(sender: CommandSender, command: String?): Boolean {
+            override fun hasAccess(sender: CommandSender, input: String?): Boolean {
                 hasAccess?.isAccessible = true
-                return hasAccess?.call(sender, command) ?: true
+                return hasAccess?.call(sender, input)
+                    ?: commando.canAccessBlock(sender, input, command.permission)
             }
         }
     }
