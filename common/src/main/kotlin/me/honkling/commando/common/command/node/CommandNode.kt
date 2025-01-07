@@ -44,7 +44,8 @@ class CommandNode<Anno : Annotation>(
 
     override fun autoComplete(user: User<*>, input: String): List<String> {
         println("Request: '$input'")
-        val defaultNode = children.find { it is SubCommandNode<*> && it.name == name }
+        @Suppress("UNCHECKED_CAST")
+        val defaultNode = children.find { it is SubCommandNode<*> && it.name == name } as SubCommandNode<Anno>?
 
         if (' ' !in input) {
             val completions =
@@ -53,7 +54,7 @@ class CommandNode<Anno : Annotation>(
                 else mutableListOf()
 
             completions += children
-                .mapNotNull { if (it != defaultNode) it.name else null }
+                .mapNotNull { if (it != defaultNode && it is SubCommandNode<*>) it.name else null }
 
             return completions
                 .filter { input in it }
@@ -70,7 +71,7 @@ class CommandNode<Anno : Annotation>(
         }
 
         // The user provided a bad sub command or something else
-        return emptyList()
+        return defaultNode?.autoComplete(user, input) ?: emptyList()
     }
 
     override fun toString(): String {

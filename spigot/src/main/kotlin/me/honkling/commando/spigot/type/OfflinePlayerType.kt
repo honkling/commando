@@ -16,7 +16,7 @@ class OfflinePlayerType : Type<OfflinePlayer>() {
         autoCompleting: Boolean
     ): Result<Pair<OfflinePlayer, String>> {
         val first = input(input, 1)
-        val rest = input.substringAfter(' ', "")
+        val rest = input(input, 1, true)
         lateinit var player: OfflinePlayer
 
         if (autoCompleting && ' ' !in input)

@@ -6,6 +6,7 @@ import me.honkling.commando.common.exception.ExecutionError
 import me.honkling.commando.common.node.Node
 import me.honkling.commando.common.parser.handle.FunctionHandle
 import me.honkling.commando.minestom.MinestomCommando
+import me.honkling.commando.minestom.context.AliasContext
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.MinecraftServer
@@ -32,6 +33,12 @@ class CommandInteraction(
     CommandSender::class,
     Command::class
 ) {
+    init {
+        addContextCreator { _, context ->
+            AliasContext(context.label)
+        }
+    }
+
     override fun testFunction(parent: KClass<*>, handle: FunctionHandle): Result<Nothing?> {
         if (isHasAccess(handle))
             return Result.success(null)
@@ -80,12 +87,16 @@ class CommandInteraction(
 
         return object : SimpleCommand(command.name, *command.aliases) {
             init {
+                val regex = Regex("(?<=^| )\\x00")
                 val params = syntaxes
                     .find { it.arguments.firstOrNull() is ArgumentStringArray }!!
                     .arguments[0] as ArgumentStringArray
 
                 params.setSuggestionCallback { sender, context, suggestion ->
+                    // for some reason, Minestom gives a null byte as input when the user hasn't
+                    // supplied a parameter yet, so we need to remove it from our input.
                     val input = context.input.substringAfter(' ', "")
+                        .replace(regex, "")
                     val user = commando.userManager.getUser(sender)
 
                     for (completion in root.autoComplete(user, input))
@@ -94,7 +105,8 @@ class CommandInteraction(
             }
 
             override fun process(sender: CommandSender, command: String, args: Array<out String>): Boolean {
-                val input = args.joinToString(" ")
+                var input = args.joinToString(" ")
+
                 val context = MinestomContext(root, sender, command, input)
                 val executionResult = execute(root, context)
 
@@ -128,8 +140,3 @@ class CommandInteraction(
     }
 }
 
-//    init {
-//        addContextCreator { _, context ->
-//            LabelContext(context.label)
-//        }
-//    }

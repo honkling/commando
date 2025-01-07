@@ -17,11 +17,8 @@ class PlayerType : Type<Player>() {
         autoCompleting: Boolean
     ): Result<Pair<Player, String>> {
         val first = input(input, 1)
-        val rest = input.substringAfter(' ', "")
+        val rest = input(input, 1, true)
         lateinit var player: Player
-
-        if (autoCompleting && ' ' !in input)
-            return Result.failure(IllegalArgumentException("Override"))
 
         if (first.isEmpty())
             return Result.failure(IllegalArgumentException("Expected a player name or UUID, found nothing"))

@@ -21,8 +21,19 @@ abstract class Type<T> {
      */
     abstract fun suggest(user: User<*>, node: Node<*>, input: String): List<String>
 
-    fun input(input: String, first: Int): String
-        = input.split(" ")
-            .slice(0..<first)
+    /**
+     * Gets the first n arguments or the arguments with n removed from the start.
+     * @param sliced If arguments should be sliced off
+     */
+    fun input(input: String, first: Int, sliced: Boolean = false): String {
+        val args = input.split(" ")
+
+        if (!sliced)
+            return args
+                .slice(0..<first)
+                .joinToString(" ")
+
+        return args.slice(first..<args.size)
             .joinToString(" ")
+    }
 }

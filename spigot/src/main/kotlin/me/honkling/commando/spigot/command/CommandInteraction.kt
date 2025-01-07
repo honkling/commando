@@ -5,7 +5,7 @@ import me.honkling.commando.common.command.node.CommandNode
 import me.honkling.commando.common.exception.ExecutionError
 import me.honkling.commando.common.node.Node
 import me.honkling.commando.spigot.SpigotCommando
-import me.honkling.commando.spigot.context.LabelContext
+import me.honkling.commando.spigot.context.AliasContext
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
@@ -29,7 +29,7 @@ class CommandInteraction(
 ) {
     init {
         addContextCreator { _, context ->
-            LabelContext(context.label)
+            AliasContext(context.label)
         }
     }
 

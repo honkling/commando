@@ -38,7 +38,7 @@ class EnumType<T : Enum<T>>(
             ?: return Result.failure(IllegalArgumentException("Expected one of ${values.joinToString("/") { it.name }}, but found '$first' instead."))
 
         println(value)
-        return Result.success(value to input.substringAfter(' ', ""))
+        return Result.success(value to input(input, 1, true))
     }
 
     override fun suggest(user: User<*>, node: Node<*>, input: String): List<String> {

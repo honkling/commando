@@ -62,10 +62,10 @@ class SubCommandNode<Anno : Annotation>(
             if (parseResult.isSuccess) {
                 val newInput = parseResult.getOrThrow().second
 
-                if (' ' !in input && newInput.isEmpty())
+                if (' ' !in input)
                     return parameter.autoComplete(user, input)
 
-                input = newInput.trim()
+                input = newInput.trimStart()
                 continue
             }
 

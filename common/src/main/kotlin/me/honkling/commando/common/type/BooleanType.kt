@@ -14,7 +14,7 @@ class BooleanType : Type<Boolean>() {
                 val display = if (first.isEmpty()) "nothing" else "'$first'"
                 return Result.failure(IllegalArgumentException("Expected one of true/false/yes/no/on/off, found $display"))
             }
-        } to input.substringAfter(' ', ""))
+        } to input(input, 1, true))
     }
 
     override fun suggest(user: User<*>, node: Node<*>, input: String): List<String> {
