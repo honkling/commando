@@ -7,7 +7,7 @@ import kotlin.reflect.jvm.javaMethod
 
 class FunctionHandle(
     val interactionType: InteractionType<*, *>,
-    val reflector: KFunction<Unit>
+    val reflector: KFunction<*>
 ) {
     val name = reflector.name
     val parameters = reflector.javaMethod!!.parameters.withIndex()

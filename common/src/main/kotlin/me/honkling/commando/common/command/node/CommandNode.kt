@@ -44,7 +44,7 @@ class CommandNode<Anno : Annotation>(
 
     override fun autoComplete(user: User<*>, input: String): List<String> {
         println("Request: '$input'")
-        val defaultNode = children.find { it.name == name }
+        val defaultNode = children.find { it is SubCommandNode<*> && it.name == name }
 
         if (' ' !in input) {
             val completions =
@@ -60,7 +60,7 @@ class CommandNode<Anno : Annotation>(
         }
 
         val first = input.split(" ")[0]
-        val subCommand = children.find { it.name == first }
+        val subCommand = children.find { it is SubCommandNode<*> && it.name == first }
 
         if (subCommand != null) {
             subCommand as AutoCompletable

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.honkling.commando"
-version = "3.0.0-Build5"
+version = "3.0.0-Build6"
 
 subprojects {
     apply(plugin = "com.gradleup.shadow")
@@ -15,6 +15,8 @@ subprojects {
 
     group = rootProject.group
     version = rootProject.version
+
+    dependencies.implementation(dependencies.kotlin("reflect"))
 
     publishing {
         publications {

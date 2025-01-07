@@ -14,7 +14,7 @@ class ContextCreator<Context, This : ContextProvider>(
     val block: ContextCreatorBlock<Context, This>
 )
 
-fun KFunction<Unit>.getContextProviderType(): KClass<out ContextProvider>? {
+fun KFunction<*>.getContextProviderType(): KClass<out ContextProvider>? {
     val type = javaMethod!!.parameters.firstOrNull()?.type?.kotlin
         ?: return null
 

@@ -13,6 +13,7 @@ import me.honkling.commando.common.parser.handle.FunctionHandle
 import me.honkling.commando.common.platform.User
 import me.honkling.commando.common.type.EnumType
 import kotlin.reflect.KClass
+import kotlin.reflect.KFunction
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.isSubclassOf

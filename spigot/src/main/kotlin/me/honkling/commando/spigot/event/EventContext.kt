@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 
 data class EventContext(
-    val function: KFunction<Unit>,
+    val function: KFunction<*>,
     val eventType: KClass<out Event>,
     val priority: EventPriority
 )
