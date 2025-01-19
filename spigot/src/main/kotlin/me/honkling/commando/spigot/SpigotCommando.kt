@@ -12,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class SpigotCommando(
     val plugin: JavaPlugin
-) : Commando() {
+) : Commando(plugin::class) {
     override val userManager = SpigotUserManager()
 
     init {

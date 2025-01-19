@@ -15,8 +15,9 @@ data class ClassParseResult(
     val node: Node<*>
 )
 
-fun parseClass(commando: Commando, clazz: KClass<*>): Result<ClassParseResult> {
+fun parseClass(commando: Commando, clazz: KClass<*>): Result<List<ClassParseResult>> {
     println("Testing class ${clazz.qualifiedName}")
+    val parseResults = mutableListOf<ClassParseResult>()
 
     for (interaction in commando.interactionRegistry.interactionTypes) {
         if (interaction.testParent(clazz).isFailure) {
@@ -60,14 +61,22 @@ fun parseClass(commando: Commando, clazz: KClass<*>): Result<ClassParseResult> {
             val parsedChild = parseClass(commando, child)
 
             if (parsedChild.isSuccess) {
-                val childNode = parsedChild.getOrThrow().node
-                childNode.parent = node
-                node.children += childNode
+                val parseResult = parsedChild.getOrThrow()
+                    .find { it.interactionType == interaction }
+
+                if (parseResult != null) {
+                    val childNode = parseResult.node
+                    childNode.parent = node
+                    node.children += childNode
+                }
             }
         }
 
-        return Result.success(ClassParseResult(interaction, node))
+        parseResults += ClassParseResult(interaction, node)
     }
 
-    return Result.failure(ParseError.NoCandidates("No interaction types matched."))
+    if (parseResults.isEmpty())
+        return Result.failure(ParseError.NoCandidates("No interaction types matched."))
+
+    return Result.success(parseResults)
 }

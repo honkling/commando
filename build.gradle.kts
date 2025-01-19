@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.honkling.commando"
-version = "3.0.0-Build8"
+version = "3.0.0-Build10"
 
 subprojects {
     apply(plugin = "com.gradleup.shadow")
@@ -46,6 +46,4 @@ allprojects {
     tasks.build {
         dependsOn("shadowJar", "publishToMavenLocal")
     }
-
-
 }

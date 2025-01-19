@@ -11,8 +11,15 @@ import me.honkling.commando.common.type.NumberType
 import me.honkling.commando.common.type.StringType
 import me.honkling.commando.common.type.TypeRegistry
 import java.util.logging.Logger
+import kotlin.reflect.KClass
 
-abstract class Commando {
+abstract class Commando(
+    /**
+     * Any class for your project/submodule.
+     * Used for scanning packages.
+     */
+    private val instanceClass: KClass<*> = Commando::class
+) {
     val logger: Logger = Logger.getLogger("commando")
     val interactionRegistry = InteractionRegistry()
     val typeRegistry = TypeRegistry()
@@ -31,23 +38,26 @@ abstract class Commando {
         typeRegistry.register(BooleanType(), Boolean::class, java.lang.Boolean::class)
     }
 
-    fun register(rootPackage: String, vararg children: String) {
+    fun register(rootPackage: String, vararg children: String, instanceClass: KClass<*> = this.instanceClass) {
         val classes = children
-            .map { getClassesInPackage(Commando::class.java, "$rootPackage.$it") }
+            .map { getClassesInPackage(instanceClass.java, "$rootPackage.$it") }
             .flatten()
 
         for (clazz in classes) {
             println("Parsing class: ${clazz.name}")
-            val parseResult = parseClass(this, clazz.kotlin)
+            val parseResults = parseClass(this, clazz.kotlin)
 
-            if (parseResult.isFailure) {
-                println("Failed: ${parseResult.exceptionOrNull()!!.message}")
+            if (parseResults.isFailure) {
+                println("Failed: ${parseResults.exceptionOrNull()!!.message}")
                 continue
             }
 
-            val classResult = parseResult.getOrThrow()
-            parsedNodes += classResult
-            classResult.interactionType::postParse.call(classResult.node)
+            val classResults = parseResults.getOrThrow()
+
+            for (classResult in classResults) {
+                parsedNodes += classResult
+                classResult.interactionType::postParse.call(classResult.node)
+            }
         }
     }
 }

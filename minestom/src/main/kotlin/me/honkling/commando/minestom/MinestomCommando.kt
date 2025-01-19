@@ -7,10 +7,12 @@ import me.honkling.commando.minestom.platform.MinestomUserManager
 import me.honkling.commando.minestom.type.PlayerType
 import net.minestom.server.command.CommandSender
 import net.minestom.server.entity.Player
+import kotlin.reflect.KClass
 
 class MinestomCommando(
+    instanceClass: KClass<*>,
     val canAccessBlock: (sender: CommandSender, command: String?, permission: String) -> Boolean = { _, _, _ -> true }
-) : Commando() {
+) : Commando(instanceClass) {
     override val userManager = MinestomUserManager()
 
     init {
