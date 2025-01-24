@@ -2,6 +2,7 @@ package me.honkling.commando.common.command
 
 import me.honkling.commando.common.Commando
 import me.honkling.commando.common.command.node.CommandNode
+import me.honkling.commando.common.command.node.CompletionNode
 import me.honkling.commando.common.command.node.ParameterNode
 import me.honkling.commando.common.command.node.SubCommandNode
 import me.honkling.commando.common.exception.ExecutionError
@@ -34,8 +35,25 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
 
     override fun testFunction(parent: KClass<*>, handle: FunctionHandle): Result<Nothing?> {
         val parameters = handle.parameters.toMutableList()
+
         val isSenderValid = parameters.removeFirstOrNull()?.first
             ?.let { senderClass.java.isAssignableFrom(it.type) } == true
+
+        if (handle.name.endsWith("\$complete")) {
+            if (!isSenderValid)
+                return Result.failure(IllegalArgumentException("First parameter of completion function must be a command sender"))
+
+            if (parameters.removeFirstOrNull()?.first?.type != ParameterNode::class.java)
+                return Result.failure(IllegalArgumentException("Second parameter of completion function must be a ParameterNode"))
+
+            if (parameters.removeFirstOrNull()?.first?.type != String::class.java)
+                return Result.failure(IllegalArgumentException("Third parameter of completion function must be a String"))
+
+            if (parameters.isNotEmpty())
+                return Result.failure(IllegalArgumentException("Completion function must not have more than three parameters"))
+
+            return Result.success(null)
+        }
 
         val invalidParameterTypes = parameters
             .filter {
@@ -69,6 +87,12 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
     override fun parse(root: Node<Anno>, parent: KClass<*>, handle: FunctionHandle) {
         println("Parsing function '${handle.name}'")
         root as CommandNode<Anno>
+
+        if (handle.name.endsWith("\$complete")) {
+            root.children += CompletionNode(root, handle.name, handle)
+            return
+        }
+
         val node = SubCommandNode(root, handle.name, handle)
 
         for ((java, kotlin) in handle.parameters.slice(1..<handle.parameters.size)) {

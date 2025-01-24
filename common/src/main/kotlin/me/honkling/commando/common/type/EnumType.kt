@@ -44,6 +44,6 @@ class EnumType<T : Enum<T>>(
     override fun suggest(user: User<*>, node: Node<*>, input: String): List<String> {
         return values
             .map(Enum<T>::name)
-            .filter { input in it }
+            .filter { input.contains(it, true) }
     }
 }
