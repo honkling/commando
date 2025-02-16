@@ -3,9 +3,11 @@ package me.honkling.commando.spigot
 import me.honkling.commando.common.Commando
 import me.honkling.commando.spigot.command.CommandInteraction
 import me.honkling.commando.spigot.event.EventInteraction
+import me.honkling.commando.spigot.event.UserEvents
 import me.honkling.commando.spigot.platform.SpigotUserManager
 import me.honkling.commando.spigot.type.OfflinePlayerType
 import me.honkling.commando.spigot.type.PlayerType
+import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
@@ -21,5 +23,7 @@ class SpigotCommando(
 
         typeRegistry.register(PlayerType(), Player::class)
         typeRegistry.register(OfflinePlayerType(), OfflinePlayer::class)
+
+        Bukkit.getPluginManager().registerEvents(UserEvents(this), plugin)
     }
 }

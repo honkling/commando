@@ -7,5 +7,9 @@ abstract class UserManager<Accessor : Any> {
 
     fun getUser(accessor: Accessor) =
         userCache.computeIfAbsent(accessor) { createUser(it) }
+
+    fun deleteUser(accessor: Accessor) =
+        userCache.remove(accessor)
+
     abstract fun createUser(accessor: Accessor): User<Accessor>
 }
