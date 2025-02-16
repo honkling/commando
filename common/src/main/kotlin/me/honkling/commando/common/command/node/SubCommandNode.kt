@@ -16,14 +16,18 @@ class SubCommandNode<Anno : Annotation>(
     override fun parse(user: User<*>, input: String): Result<List<Any?>> {
         val parent = parent!!
 
-        if (!input.startsWith(name) && parent.name != name)
+        if (!input.startsWith(name) && parent.name != name) {
+            println("Fail 1")
             return Result.failure(ParseError.NotApplicable("Not a valid sub command"))
+        }
 
         if (parent.name == name) {
             val first = input.split(" ")[0]
 
-            if (parent.children.any { it.name == first })
+            if (parent.children.any { it.name == first && it.name != parent.name }) {
+                println("Fail 2")
                 return Result.failure(ParseError.NotApplicable("Not a valid sub command"))
+            }
         }
 
         val parameters = mutableListOf<Any?>()

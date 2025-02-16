@@ -13,7 +13,7 @@ class CommandNode<Anno : Annotation>(
 ) : Node<Anno>(parent, name, context), Parsable<Pair<SubCommandNode<Anno>, List<Any?>>>, AutoCompletable {
     override fun parse(user: User<*>, input: String): Result<Pair<SubCommandNode<Anno>, List<Any?>>> {
         for (child in children) {
-            if (child is SubCommandNode<*> && child.name != name) {
+            if (child is SubCommandNode<*>) {
                 child as SubCommandNode<Anno>
                 val parseResult = child.parse(user, input)
 
