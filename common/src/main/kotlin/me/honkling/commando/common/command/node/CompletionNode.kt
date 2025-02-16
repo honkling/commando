@@ -17,8 +17,6 @@ class CompletionNode<Anno : Annotation>(
         val function = handle.reflector as KFunction<List<String>>
         val accessorType = handle.parameters.first().first.type
 
-        println("Auto completing ${handle.name} (${accessorType.name}) (${user.accessor::class.java.name})")
-
         if (!accessorType.isAssignableFrom(user.accessor::class.java))
             return emptyList()
 
