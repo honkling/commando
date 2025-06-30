@@ -16,24 +16,24 @@ data class ClassParseResult(
 )
 
 fun parseClass(commando: Commando, clazz: KClass<*>): Result<List<ClassParseResult>> {
-    println("Testing class ${clazz.qualifiedName}")
+    commando.logger.finest("Testing class ${clazz.qualifiedName}")
     val parseResults = mutableListOf<ClassParseResult>()
 
     for (interaction in commando.interactionRegistry.interactionTypes) {
         if (interaction.testParent(clazz).isFailure) {
-            println("Test parent on class failed")
+            commando.logger.finest("Test parent on class failed")
             continue
         }
 
         val node = interaction.createRootNode(clazz)
-        println("Created node $node")
+        commando.logger.finest("Created node $node")
 
         for ((java, kotlin) in clazz.java.declaredMethods.mapNotNull {
             it to (it.kotlinFunction ?: return@mapNotNull null)
         }) {
-            println("Testing function ${kotlin.name} ($java) ($kotlin)")
-            println("${kotlin.returnType != Unit::class} (${kotlin.returnType} != ${Unit::class}) - ${!Modifier.isStatic(java.modifiers)}")
-            println("${java.declaringClass.name}")
+            commando.logger.finest("Testing function ${kotlin.name} ($java) ($kotlin)")
+            commando.logger.finest("${kotlin.returnType != Unit::class} (${kotlin.returnType} != ${Unit::class}) - ${!Modifier.isStatic(java.modifiers)}")
+            commando.logger.finest("${java.declaringClass.name}")
 
             if (!Modifier.isStatic(java.modifiers))
                 continue
@@ -45,11 +45,11 @@ fun parseClass(commando: Commando, clazz: KClass<*>): Result<List<ClassParseResu
 
             if (testResult.isFailure) {
                 val exception = testResult.exceptionOrNull()!!
-                commando.logger.warning("Skipping function '${handle.name}' of class '${clazz.qualifiedName}': ${exception.message}")
+                commando.logger.fine("Skipping function '${handle.name}' of class '${clazz.qualifiedName}': ${exception.message}")
                 continue
             }
 
-            println("Parsing function")
+            commando.logger.finest("Parsing function")
 
             // Reflection for now because Kotlin is being really weird
             // about generics and I don't feel like figuring it out !!

@@ -85,24 +85,25 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
     }
 
     override fun parse(root: Node<Anno>, parent: KClass<*>, handle: FunctionHandle) {
-        println("Parsing function '${handle.name}'")
+        commando.logger.finest("Parsing function '${handle.name}'")
         root as CommandNode<Anno>
 
         if (handle.name.endsWith("\$complete")) {
-            root.children += CompletionNode(root, handle.name, handle)
+            root.children += CompletionNode(commando, root, handle.name, handle)
             return
         }
 
-        val node = SubCommandNode(root, handle.name, handle)
+        val node = SubCommandNode(commando, root, handle.name, handle)
 
         for ((java, kotlin) in handle.parameters.slice(1..<handle.parameters.size)) {
-            println("Java parameter: ${java.name} ${java.type}")
-            println("Kotlin parameter: ${kotlin.name} ${kotlin.type}")
+            commando.logger.finest("Java parameter: ${java.name} ${java.type}")
+            commando.logger.finest("Kotlin parameter: ${kotlin.name} ${kotlin.type}")
             @Suppress("UNCHECKED_CAST")
             val type = commando.typeRegistry[java.type.kotlin]
                 ?: EnumType(java.type.kotlin as KClass<out Enum<*>>)
 
             node.children += ParameterNode(
+                commando,
                 node,
                 kotlin.name ?: java.name,
                 ParameterInfo(type, !kotlin.isOptional)
@@ -144,10 +145,10 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
             callParameters.add(0, contextProvider)
         }
 
-        println(callParameters)
-        println(function.parameters.map { it.type })
+        commando.logger.finest(callParameters.toString())
+        commando.logger.finest(function.parameters.map { it.type }.toString())
         val parameterMap = mutableMapOf(*callParameters.mapIndexedNotNull { index, it ->
-            println("$index to $it")
+            commando.logger.finest("$index to $it")
             val rightIndex = index + if (instanceParameter != null || objectInstance != null) 1 else 0
             val parameter = function.parameters[rightIndex]
 
@@ -155,7 +156,7 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
                 null
             else parameter to it
         }.toTypedArray())
-        println(parameterMap.map { it.key.name to it.value })
+        commando.logger.finest(parameterMap.map { it.key.name to it.value }.toString())
 
         if (function.instanceParameter != null) {
             if (objectInstance != null) {

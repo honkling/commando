@@ -1,5 +1,6 @@
 package me.honkling.commando.common.command.node
 
+import me.honkling.commando.common.Commando
 import me.honkling.commando.common.node.AutoCompletable
 import me.honkling.commando.common.node.Node
 import me.honkling.commando.common.parser.handle.FunctionHandle
@@ -8,16 +9,17 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.jvm.isAccessible
 
 class CompletionNode<Anno : Annotation>(
+    commando: Commando,
     parent: CommandNode<Anno>,
     name: String,
     val handle: FunctionHandle
-) : Node<Nothing?>(parent, name, null) {
+) : Node<Nothing?>(commando, parent, name, null) {
     fun autoComplete(user: User<*>, node: ParameterNode<Anno>, input: String): List<String> {
         @Suppress("UNCHECKED_CAST")
         val function = handle.reflector as KFunction<List<String>>
         val accessorType = handle.parameters.first().first.type
 
-        println("Auto completing ${handle.name} (${accessorType.name}) (${user.accessor::class.java.name})")
+        commando.logger.finest("Auto completing ${handle.name} (${accessorType.name}) (${user.accessor::class.java.name})")
 
         if (!accessorType.isAssignableFrom(user.accessor::class.java))
             return emptyList()

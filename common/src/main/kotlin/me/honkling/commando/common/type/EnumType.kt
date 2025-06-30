@@ -37,13 +37,13 @@ class EnumType<T : Enum<T>>(
             ?: values.firstOrNull { it.name.equals(first, true) }
             ?: return Result.failure(IllegalArgumentException("Expected one of ${values.joinToString("/") { it.name }}, but found '$first' instead."))
 
-        println(value)
+        node.commando.logger.finest(value.toString())
         return Result.success(value to input(input, 1, true))
     }
 
     override fun suggest(user: User<*>, node: Node<*>, input: String): List<String> {
         return values
             .map(Enum<T>::name)
-            .filter { input.contains(it, true) }
+            .filter { it.contains(input, true) }
     }
 }

@@ -35,7 +35,7 @@ class CommandInteraction(
 
     override fun createRootNode(parent: KClass<*>): Node<Command> {
         val command = parent.java.getAnnotation(Command::class.java)
-        return CommandNode(null, command.name, command)
+        return CommandNode(commando, null, command.name, command)
     }
 
     override fun execute(root: Node<Command>, context: SpigotContext): Result<Nothing?> {
@@ -45,7 +45,7 @@ class CommandInteraction(
     }
 
     override fun postParse(root: Node<Command>) {
-        println(root)
+        commando.logger.finest(root.toString())
         root as CommandNode<Command>
         val commandMap = Bukkit.getCommandMap()
         val commandInfo = root.context

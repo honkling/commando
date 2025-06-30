@@ -1,5 +1,6 @@
 package me.honkling.commando.common.command.node
 
+import me.honkling.commando.common.Commando
 import me.honkling.commando.common.exception.ParseError
 import me.honkling.commando.common.node.AutoCompletable
 import me.honkling.commando.common.node.Node
@@ -9,15 +10,16 @@ import me.honkling.commando.common.platform.User
 import kotlin.reflect.KFunction
 
 class SubCommandNode<Anno : Annotation>(
+    commando: Commando,
     parent: CommandNode<Anno>,
     name: String,
     val handle: FunctionHandle
-) : Node<Nothing?>(parent, name, null), Parsable<List<Any?>>, AutoCompletable {
+) : Node<Nothing?>(commando, parent, name, null), Parsable<List<Any?>>, AutoCompletable {
     override fun parse(user: User<*>, input: String): Result<List<Any?>> {
         val parent = parent!!
 
         if (!input.startsWith(name) && parent.name != name) {
-            println("Fail 1")
+            commando.logger.finest("Fail 1")
             return Result.failure(ParseError.NotApplicable("Not a valid sub command"))
         }
 
@@ -25,7 +27,7 @@ class SubCommandNode<Anno : Annotation>(
             val first = input.split(" ")[0]
 
             if (parent.children.any { it.name == first && it.name != parent.name }) {
-                println("Fail 2")
+                commando.logger.finest("Fail 2")
                 return Result.failure(ParseError.NotApplicable("Not a valid sub command"))
             }
         }
@@ -37,7 +39,7 @@ class SubCommandNode<Anno : Annotation>(
             else input
 
         for (parameter in children) {
-            println("Parsing with input '$input'")
+            commando.logger.finest("Parsing with input '$input'")
             parameter as ParameterNode<*>
             val parseResult = parameter.parse(user, input)
 
@@ -59,9 +61,9 @@ class SubCommandNode<Anno : Annotation>(
         var input = input
 
         for (parameter in children as List<ParameterNode<Anno>>) {
-            println("Now trying parameter ${parameter.context} with input '${input}'")
+            commando.logger.finest("Now trying parameter ${parameter.context} with input '${input}'")
             val parseResult = parameter.parse(user, input, true)
-            println(parseResult)
+            commando.logger.finest(parseResult.toString())
 
             if (parseResult.isSuccess) {
                 val newInput = parseResult.getOrThrow().second

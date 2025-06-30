@@ -35,13 +35,13 @@ class EventInteraction(
     }
 
     override fun createRootNode(parent: KClass<*>): Node<Nothing?> {
-        return Node(null, parent.jvmName, null)
+        return Node(commando, null, parent.jvmName, null)
     }
 
     override fun parse(root: Node<Nothing?>, parent: KClass<*>, handle: FunctionHandle) {
         @Suppress("UNCHECKED_CAST")
         val eventType = handle.parameters[0].first.type.kotlin as KClass<out Event>
-        val node = Node(root, handle.name, EventContext(
+        val node = Node(commando, root, handle.name, EventContext(
             handle.reflector,
             eventType
         ))

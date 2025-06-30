@@ -1,5 +1,6 @@
 package me.honkling.commando.common.command.node
 
+import me.honkling.commando.common.Commando
 import me.honkling.commando.common.exception.ParseError
 import me.honkling.commando.common.node.AutoCompletable
 import me.honkling.commando.common.node.Node
@@ -7,10 +8,11 @@ import me.honkling.commando.common.node.Parsable
 import me.honkling.commando.common.platform.User
 
 class CommandNode<Anno : Annotation>(
+    commando: Commando,
     parent: CommandNode<Anno>?,
     name: String,
     context: Anno
-) : Node<Anno>(parent, name, context), Parsable<Pair<SubCommandNode<Anno>, List<Any?>>>, AutoCompletable {
+) : Node<Anno>(commando, parent, name, context), Parsable<Pair<SubCommandNode<Anno>, List<Any?>>>, AutoCompletable {
     override fun parse(user: User<*>, input: String): Result<Pair<SubCommandNode<Anno>, List<Any?>>> {
         for (child in children) {
             if (child is SubCommandNode<*>) {
@@ -30,7 +32,7 @@ class CommandNode<Anno : Annotation>(
             } else if (child is CommandNode<*>) {
                 child as CommandNode<Anno>
 
-                println("'$input' ('${input.split(" ").firstOrNull()}' vs '${child.name}')")
+                commando.logger.finest("'$input' ('${input.split(" ").firstOrNull()}' vs '${child.name}')")
 
                 if (input.split(" ").firstOrNull() != child.name)
                     continue
@@ -43,7 +45,7 @@ class CommandNode<Anno : Annotation>(
     }
 
     override fun autoComplete(user: User<*>, input: String): List<String> {
-        println("Request: '$input'")
+        commando.logger.finest("Request: '$input'")
         @Suppress("UNCHECKED_CAST")
         val defaultNode = children.find { it is SubCommandNode<*> && it.name == name } as SubCommandNode<Anno>?
 
@@ -65,8 +67,8 @@ class CommandNode<Anno : Annotation>(
 
         if (subCommand != null) {
             subCommand as AutoCompletable
-            println("Found subcommand $subCommand")
-            println("New input: '${input.substringAfter(' ', "")}'")
+            commando.logger.finest("Found subcommand $subCommand")
+            commando.logger.finest("New input: '${input.substringAfter(' ', "")}'")
             return subCommand.autoComplete(user, input.substringAfter(' ', ""))
         }
 

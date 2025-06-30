@@ -1,5 +1,6 @@
 package me.honkling.commando.common.command.node
 
+import me.honkling.commando.common.Commando
 import me.honkling.commando.common.command.ParameterInfo
 import me.honkling.commando.common.node.AutoCompletable
 import me.honkling.commando.common.node.Node
@@ -7,10 +8,11 @@ import me.honkling.commando.common.node.Parsable
 import me.honkling.commando.common.platform.User
 
 class ParameterNode<Anno : Annotation>(
+    commando: Commando,
     parent: SubCommandNode<Anno>,
     name: String,
     context: ParameterInfo
-) : Node<ParameterInfo>(parent, name, context), Parsable<Pair<Any?, String>>, AutoCompletable {
+) : Node<ParameterInfo>(commando, parent, name, context), Parsable<Pair<Any?, String>>, AutoCompletable {
     override fun parse(user: User<*>, input: String): Result<Pair<Any?, String>> {
         return parse(user, input, false)
     }
@@ -26,7 +28,7 @@ class ParameterNode<Anno : Annotation>(
 
     override fun autoComplete(user: User<*>, input: String): List<String> {
         val (type) = context
-        println("Auto completing parameter with input '$input'")
+        commando.logger.finest("Auto completing parameter with input '$input'")
         val completions = type.suggest(user, this, input).toMutableList()
         val subCommand = parent as SubCommandNode<*>
         val completors = parent!!.parent!!.children

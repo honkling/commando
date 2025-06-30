@@ -48,12 +48,12 @@ class CommandInteraction(
 
     override fun createRootNode(parent: KClass<*>): Node<Command> {
         val command = parent.java.getAnnotation(Command::class.java)
-        return CommandNode(null, command.name, command)
+        return CommandNode(commando, null, command.name, command)
     }
 
     override fun parse(root: Node<Command>, parent: KClass<*>, handle: FunctionHandle) {
         if (isHasAccess(handle)) {
-            root.children += Node(root, "<has-access>", handle.reflector)
+            root.children += Node(commando, root, "<has-access>", handle.reflector)
             return
         }
 
@@ -67,7 +67,7 @@ class CommandInteraction(
     }
 
     override fun postParse(root: Node<Command>) {
-        println(root)
+        commando.logger.finest(root.toString())
         root as CommandNode<Command>
         val commandManager = MinecraftServer.getCommandManager()
         val commandInfo = root.context
@@ -86,6 +86,8 @@ class CommandInteraction(
         val hasAccess = root.children.find { it.name == "<has-access>" }?.context as KFunction<Boolean>?
 
         return object : SimpleCommand(command.name, *command.aliases) {
+            val spaceRegex = Regex(" +")
+
             init {
                 val regex = Regex("(?<=^| )\\x00")
                 val params = syntaxes
@@ -95,7 +97,8 @@ class CommandInteraction(
                 params.setSuggestionCallback { sender, context, suggestion ->
                     // for some reason, Minestom gives a null byte as input when the user hasn't
                     // supplied a parameter yet, so we need to remove it from our input.
-                    val input = context.input.substringAfter(' ', "")
+                    val input = context.input.replace(spaceRegex, " ")
+                        .substringAfter(' ', "")
                         .replace(regex, "")
                     val user = commando.userManager.getUser(sender)
 
@@ -105,7 +108,8 @@ class CommandInteraction(
             }
 
             override fun process(sender: CommandSender, command: String, args: Array<out String>): Boolean {
-                var input = args.joinToString(" ")
+                val input = args.joinToString(" ")
+                    .replace(spaceRegex, " ")
 
                 val context = MinestomContext(root, sender, command, input)
                 val executionResult = execute(root, context)

@@ -44,11 +44,11 @@ abstract class Commando(
             .flatten()
 
         for (clazz in classes) {
-            println("Parsing class: ${clazz.name}")
+            logger.fine("Parsing class: ${clazz.name}")
             val parseResults = parseClass(this, clazz.kotlin)
 
             if (parseResults.isFailure) {
-                println("Failed: ${parseResults.exceptionOrNull()!!.message}")
+                logger.fine("Failed: ${parseResults.exceptionOrNull()!!.message}")
                 continue
             }
 
