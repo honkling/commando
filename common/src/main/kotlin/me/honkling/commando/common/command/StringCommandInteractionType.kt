@@ -58,7 +58,12 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
         val invalidParameterTypes = parameters
             .filter {
                 val type = it.first.type.kotlin
-                type !in commando.typeRegistry && !type.isSubclassOf(Enum::class)
+                commando.logger.finest("${it.second.name} ${it.second.isVararg} ${type.java.componentType?.name}")
+                (type !in commando.typeRegistry && (!it.second.isVararg || type.java.componentType.kotlin !in commando.typeRegistry))
+                        && !type.isSubclassOf(Enum::class)
+//                (type !in commando.typeRegistry ||
+//                        (it.first.isVarArgs && type.java.componentType.kotlin !in commando.typeRegistry)) &&
+//                        !type.isSubclassOf(Enum::class)
             }
 
         val earliestOptional = parameters.indexOfFirst { it.second.isOptional }
@@ -98,15 +103,17 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
         for ((java, kotlin) in handle.parameters.slice(1..<handle.parameters.size)) {
             commando.logger.finest("Java parameter: ${java.name} ${java.type}")
             commando.logger.finest("Kotlin parameter: ${kotlin.name} ${kotlin.type}")
+            val clazz = java.type
+            val klass = if (kotlin.isVararg) clazz.componentType.kotlin else clazz.kotlin
             @Suppress("UNCHECKED_CAST")
-            val type = commando.typeRegistry[java.type.kotlin]
-                ?: EnumType(java.type.kotlin as KClass<out Enum<*>>)
+            val type = commando.typeRegistry[klass]
+                ?: EnumType(klass as KClass<out Enum<*>>)
 
             node.children += ParameterNode(
                 commando,
                 node,
                 kotlin.name ?: java.name,
-                ParameterInfo(type, !kotlin.isOptional)
+                ParameterInfo(klass, type, !kotlin.isOptional, kotlin.isVararg)
             )
         }
 

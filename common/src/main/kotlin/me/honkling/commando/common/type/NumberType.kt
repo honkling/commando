@@ -20,6 +20,9 @@ class NumberType<T : Number>(
         val isNegative = input.firstOrNull() == '-'
         val factor = if (isNegative) -1 else 1
 
+        if (!isNegative && input.firstOrNull()?.isDigit() != true)
+            return Result.failure(IllegalArgumentException("Expected a number, inf, or -inf. Received '${input(input, 1)}'"))
+
         var multiplier = 10.0
         var doubleValue = 0.0
         var value = 0L
