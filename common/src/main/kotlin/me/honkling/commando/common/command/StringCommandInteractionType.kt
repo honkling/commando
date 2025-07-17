@@ -15,6 +15,7 @@ import me.honkling.commando.common.platform.User
 import me.honkling.commando.common.type.EnumType
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KParameter
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.instanceParameter
 import kotlin.reflect.full.isSubclassOf
@@ -113,7 +114,7 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
                 commando,
                 node,
                 kotlin.name ?: java.name,
-                ParameterInfo(klass, type, !kotlin.isOptional, kotlin.isVararg)
+                ParameterInfo(klass, type, !kotlin.type.isMarkedNullable, kotlin.isVararg)
             )
         }
 
@@ -154,7 +155,8 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
 
         commando.logger.finest(callParameters.toString())
         commando.logger.finest(function.parameters.map { it.type }.toString())
-        val parameterMap = mutableMapOf(*callParameters.mapIndexedNotNull { index, it ->
+
+        val parameterMap = mutableMapOf<KParameter, Any?>(*callParameters.mapIndexedNotNull { index, it ->
             commando.logger.finest("$index to $it")
             val rightIndex = index + if (instanceParameter != null || objectInstance != null) 1 else 0
             val parameter = function.parameters[rightIndex]
@@ -163,6 +165,11 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
                 null
             else parameter to it
         }.toTypedArray())
+
+        for (parameter in function.parameters)
+            if (parameter !in parameterMap && !parameter.isOptional && parameter.type.isMarkedNullable)
+                parameterMap[parameter] = null
+
         commando.logger.finest(parameterMap.map { it.key.name to it.value }.toString())
 
         if (function.instanceParameter != null) {
