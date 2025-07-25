@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "me.honkling.commando"
-version = "3.0.0"
+version = "3.0.2"
 
 subprojects {
     apply(plugin = "com.gradleup.shadow")
@@ -21,7 +21,10 @@ subprojects {
     group = rootProject.group
     version = rootProject.version
 
-    dependencies.implementation(dependencies.kotlin("reflect"))
+    dependencies {
+        compileOnly(kotlin("stdlib"))
+        compileOnly(kotlin("reflect"))
+    }
 
     java {
         withSourcesJar()

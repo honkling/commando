@@ -47,16 +47,16 @@ class CommandNode<Anno : Annotation>(
     override fun autoComplete(user: User<*>, input: String): List<String> {
         commando.logger.finest("Request: '$input'")
         @Suppress("UNCHECKED_CAST")
-        val defaultNode = children.find { it is SubCommandNode<*> && it.name == name } as SubCommandNode<Anno>?
+        val defaultNodes = children.filter { it is SubCommandNode<*> && it.name == name } as List<SubCommandNode<Anno>>
 
         if (' ' !in input) {
-            val completions =
-                if (defaultNode is AutoCompletable)
-                    defaultNode.autoComplete(user, input).toMutableList()
-                else mutableListOf()
+            val completions = defaultNodes.flatMap {
+                (it as? AutoCompletable)?.autoComplete(user, input)
+                    ?: emptyList()
+            }.toMutableList()
 
             completions += children
-                .mapNotNull { if (it != defaultNode && it is SubCommandNode<*>) it.name else null }
+                .mapNotNull { if (it !in defaultNodes && it is SubCommandNode<*>) it.name else null }
 
             return completions
                 .filter { input in it }
@@ -73,7 +73,10 @@ class CommandNode<Anno : Annotation>(
         }
 
         // The user provided a bad sub command or something else
-        return defaultNode?.autoComplete(user, input) ?: emptyList()
+        return defaultNodes.flatMap {
+            (it as? AutoCompletable)?.autoComplete(user, input)
+                ?: emptyList()
+        }.toMutableList()
     }
 
     override fun toString(): String {

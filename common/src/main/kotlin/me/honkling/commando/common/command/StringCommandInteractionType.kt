@@ -13,6 +13,7 @@ import me.honkling.commando.common.parser.getContextProviderType
 import me.honkling.commando.common.parser.handle.FunctionHandle
 import me.honkling.commando.common.platform.User
 import me.honkling.commando.common.type.EnumType
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
@@ -114,7 +115,7 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
                 commando,
                 node,
                 kotlin.name ?: java.name,
-                ParameterInfo(klass, type, !kotlin.type.isMarkedNullable, kotlin.isVararg)
+                ParameterInfo(klass, type, !kotlin.isOptional && !kotlin.type.isMarkedNullable, kotlin.isVararg)
             )
         }
 
@@ -185,7 +186,18 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
         }
 
         function.isAccessible = true
-        function.callBy(parameterMap)
+
+        try {
+            function.callBy(parameterMap)
+        } catch (exception: InvocationTargetException) {
+            val exception = exception.cause ?: exception
+
+            if (exception !is ExecutionError.BadInput)
+                exception.printStackTrace()
+
+            return Result.failure(exception)
+        }
+
         return Result.success(null)
     }
 }

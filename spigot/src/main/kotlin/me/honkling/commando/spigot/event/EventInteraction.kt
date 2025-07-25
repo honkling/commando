@@ -8,6 +8,7 @@ import org.bukkit.Bukkit
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.plugin.EventExecutor
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.isSubclassOf
@@ -70,7 +71,12 @@ class EventInteraction(
 
             pluginManager.registerEvent(eventType.java, listener, priority, EventExecutor { _, event ->
                 function.isAccessible = true
-                function.call(event)
+
+                try {
+                    function.call(event)
+                } catch (exception: InvocationTargetException) {
+                    (exception.cause ?: exception).printStackTrace()
+                }
             }, commando.plugin)
         }
     }

@@ -2,6 +2,7 @@ package me.honkling.commando.common.command.node
 
 import me.honkling.commando.common.Commando
 import me.honkling.commando.common.command.ParameterInfo
+import me.honkling.commando.common.exception.ParseError
 import me.honkling.commando.common.node.AutoCompletable
 import me.honkling.commando.common.node.Node
 import me.honkling.commando.common.node.Parsable
@@ -75,7 +76,12 @@ class ParameterNode<Anno : Annotation>(
             return Result.success(array to input)
         }
 
-        return type.parse(user, this, input, autoCompleting)
+        val result = type.parse(user, this, input, autoCompleting)
+
+        if (result.isFailure)
+            return Result.failure(ParseError.NotApplicable("Failed to parse type", result.exceptionOrNull()))
+
+        return result
     }
 
     override fun autoComplete(user: User<*>, input: String): List<String> {
