@@ -53,6 +53,9 @@ class SubCommandNode<Anno : Annotation>(
             input = newInput.trim()
         }
 
+        if (input.isNotEmpty())
+            return Result.failure(ParseError.NotApplicable("User provided too much input"))
+
         return Result.success(parameters)
     }
 
