@@ -19,14 +19,15 @@ class NumberType<T : Number>(
     override fun parse(user: User<*>, node: Node<*>, input: String, autoCompleting: Boolean): Result<Pair<T, String>> {
         val isNegative = input.firstOrNull() == '-'
         val factor = if (isNegative) -1 else 1
+        var index = if (isNegative) 1 else 0
 
-        if (!isNegative && input.firstOrNull()?.isDigit() != true)
+        val first = input.getOrNull(index)
+        if (!isNegative && first != 'i' && first?.isDigit() != true)
             return Result.failure(IllegalArgumentException("Expected a number, inf, or -inf. Received '${input(input, 1)}'"))
 
         var multiplier = 10.0
         var doubleValue = 0.0
         var value = 0L
-        var index = if (isNegative) 1 else 0
 
         if (input.getOrNull(index) == 'i') {
             // Check for infinity
@@ -42,7 +43,7 @@ class NumberType<T : Number>(
                     "Expected a number, inf, or -inf. Received '$identifier'"))
 
             return Result.success(when (typeClass) {
-                Float::class, java.lang.Float::class,
+                Float::class, java.lang.Float::class -> Float.POSITIVE_INFINITY * factor
                 Double::class, java.lang.Double::class -> Double.POSITIVE_INFINITY * factor
                 else -> return Result.failure(IllegalArgumentException("Infinity isn't supported here."))
             } as T to input.substring(index))

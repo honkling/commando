@@ -196,6 +196,11 @@ abstract class StringCommandInteractionType<Sender : Any, Event : Any, Anno : An
                 exception.printStackTrace()
 
             return Result.failure(exception)
+        } catch (exception: IllegalArgumentException) {
+            throw IllegalArgumentException(
+                "Commando provided the wrong parameters to the command, this IS a bug! Parameter map: $parameterMap",
+                exception
+            )
         }
 
         return Result.success(null)
