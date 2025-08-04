@@ -87,14 +87,17 @@ class ParameterNode<Anno : Annotation>(
     override fun autoComplete(user: User<*>, input: String): List<String> {
         val (_, type) = context
         commando.logger.finest("Auto completing parameter with input '$input'")
-        val completions = type.suggest(user, this, input).toMutableList()
+        val completions = mutableListOf<String>()
         val subCommand = parent as SubCommandNode<*>
-        val completors = parent!!.parent!!.children
+        val completers = parent!!.parent!!.children
             .filterIsInstance<CompletionNode<Anno>>()
             .filter { it.handle.name.substringBefore("\$complete") == subCommand.name }
 
-        for (completor in completors)
-            completions += completor.autoComplete(user, this, input)
+        for (completer in completers)
+            completions += completer.autoComplete(user, this, input)
+
+        if (completers.isEmpty())
+            completions += type.suggest(user, this, input)
 
         return completions
     }
