@@ -59,7 +59,6 @@ class CommandNode<Anno : Annotation>(
                 .mapNotNull { if (it !in defaultNodes && it is SubCommandNode<*>) it.name else null }
 
             return completions
-                .filter { input in it }
         }
 
         val first = input.split(" ")[0]
