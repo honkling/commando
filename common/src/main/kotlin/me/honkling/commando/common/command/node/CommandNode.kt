@@ -55,8 +55,8 @@ class CommandNode<Anno : Annotation>(
                     ?: emptyList()
             }.toMutableList()
 
-            completions += children
-                .mapNotNull { if (it !in defaultNodes && it is SubCommandNode<*>) it.name else null }
+            completions += children.mapNotNull { if (it !in defaultNodes && it is SubCommandNode<*>) it.name else null }
+                .filter { it.contains(input, true) }
 
             return completions
         }
