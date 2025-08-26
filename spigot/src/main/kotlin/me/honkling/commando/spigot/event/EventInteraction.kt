@@ -69,11 +69,12 @@ class EventInteraction(
             val (function, eventType, priority) = node.context
             val listener = ListenerImpl()
 
-            pluginManager.registerEvent(eventType.java, listener, priority, EventExecutor { _, event ->
+            pluginManager.registerEvent(eventType.java, listener, priority, { _, event ->
                 function.isAccessible = true
 
                 try {
-                    function.call(event)
+                    if (eventType.java.isAssignableFrom(event::class.java))
+                        function.call(event)
                 } catch (exception: InvocationTargetException) {
                     (exception.cause ?: exception).printStackTrace()
                 }
