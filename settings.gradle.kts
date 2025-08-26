@@ -3,3 +3,5 @@ plugins {
 }
 rootProject.name = "commando"
 include("common", "spigot", "minestom")
+
+include("brigadier")
